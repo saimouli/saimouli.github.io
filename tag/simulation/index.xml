@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Simulation | </title>
+    <link>https://saimouli.github.io/tag/simulation/</link>
+      <atom:link href="https://saimouli.github.io/tag/simulation/index.xml" rel="self" type="application/rss+xml" />
+    <description>Simulation</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Mon, 22 Feb 2021 21:07:31 -0500</lastBuildDate>
+    <image>
+      <url>https://saimouli.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
+      <title>Simulation</title>
+      <link>https://saimouli.github.io/tag/simulation/</link>
+    </image>
+    
+    <item>
+      <title>Autonomous Drone Target Recognition and Pose Estimation Simulation</title>
+      <link>https://saimouli.github.io/project/aiaa_demo/</link>
+      <pubDate>Mon, 22 Feb 2021 21:07:31 -0500</pubDate>
+      <guid>https://saimouli.github.io/project/aiaa_demo/</guid>
+      <description>&lt;p&gt;Work done for AIAA student conference&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
