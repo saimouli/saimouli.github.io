@@ -274,7 +274,7 @@ plugins_js  = []
   google_analytics = ""
   google_tag_manager = ""
   google_site_verification = ""
-  microsoft_clarity = ""
+  microsoft_clarity = "5jg4mnwbx2"
 
 ############################
 ## Content Management System
