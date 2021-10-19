@@ -35,11 +35,11 @@ image:
 
 ## Introduction
 
-In this blog post, I will go over some of the fundamental statistics that every roboticist will encounter when working or studying. I am assuming the audience will have knowledge of high school statistics and are familiar with the basic probability theory. At first, probability definitions are introduced and will continue to introduce common definitions and end with the Bayes probability theory. I am pumped, let's get started!
+In this blog post, I will go over some of the fundamental statistics that every roboticist will encounter at some point in their life. I am assuming the audience will know basic high school statistics and probability theory.
 
 ## Motivation 
 
-No sensor is perfect! Imagine Rami bot, a romba like robot with a sonar distance sensor attached. Using the sensor we wanted to predict where the obstacles are with respect to the world frame (start point of the Rami). Since the sensor is not perfect, it might be noisy and predict the obstacle distance to be 1ft short than what it actually is. To help improve Rami's obstacle estimates being able to quantify the obstacles location is important not to crash. For example, it would be helpful to Rami if we can say that the obstacle is +/- 0.5 ft with a confidence of 90% is helpful to predict and plan a route compared to the deterministic value we get from the noisy measurements. This framework can be achieved using probability theory. Enough of the imagination, let's get to the cake.
+No sensor is perfect! Imagine Rami bot, a rumba-like robot with a sonar distance sensor attached. Using the sensor we wanted to predict where the obstacles are with respect to the world frame (start point of the Rami). Since the sensor is not perfect, it might be noisy and predict the obstacle distance to be 1ft short than what it is. To help improve Rami's obstacle estimates being able to quantify the location of the obstacle is important not to crash. For example, it would be helpful to Rami if we can say that the obstacle is +/- 0.5 ft with a confidence of 90% is helpful to predict and plan a possible route compared to the deterministic value we get from the noisy measurements. This framework can be achieved using probability theory. Enough of the imagination, let's get to the cake.
 
 ## Axiomatic Probability Theory
 
@@ -109,7 +109,7 @@ properties:
 - Positive semi-definite
 - Symmentric 
 
-Don't worry if the above equation looks daunting, I am sure you will be seeing it in various literature and you will get comfortable with it. Takeaways are properties of the covariance matrix, and we need two parameters: mean, and variance is enough to get the normal distribution for a state $x$ 
+Don't worry if the above equation looks daunting, I am sure you will be seeing it in various books and will get comfortable with it over time. Takeaways are the properties of the covariance matrix, and the two parameters, mean and variance, are all that is needed to define a normal distribution for a state $x$ 
 
 ## Conditional Probability
 
@@ -124,7 +124,7 @@ If x and y are independent $p(x,y) = p(x) * p(y)$
 
 $p(x\mid y) = \frac{p(x) * p(y)} {p(y)} = p(x)$
 
-make sense right? if $y$ has no information about $x$ then $y$ won't contribute anything by querying.
+make sense right? if $y$ has no information about $x$ then $y$ won't contribute anything by querying it.
 
 ## Most Used Theorems
 

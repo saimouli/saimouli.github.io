@@ -22,17 +22,29 @@ date_format: Jan 2006
 #   Leave `date_end` empty if it's your current employer.
 #   Begin multi-line descriptions with YAML's `|2-` multi-line prefix.
 experience:
-  - title: Sr. Software Engineer
-    company: Abundant Robotics
+  - title: Robotic Software Engineer, Computer Vision and Navigation 
+    company: Robotic Research LLC
     company_url: ''
-    location: California
-    date_start: '2020-02-01'
-    date_end: ''
+    location: Mayland
+    date_start: '2020-02'
+    date_end: '2021-06'
     description: |2-
         Responsibilities include:
         
-        * Train and deploy ML models 
-        * Improve the robot's navigation system using sensor fusion and computer vision 
+        * Training and deploying ML models 
+        * Prototype robot's perception system  
+
+  - title: Software Engineer, Computer Vision and Navigation 
+    company: Abundant Robotics
+    company_url: ''
+    location: California
+    date_start: '2020-02'
+    date_end: '2021-06'
+    description: |2-
+        Responsibilities include:
+        
+        * Training and deploying ML models 
+        * Improving the robot's navigation system using sensor fusion and computer vision 
         * Survey and Stay up with the latest SOTA methods in Computer Vision and navigation field  
         
   - title: ROS Software Intern 

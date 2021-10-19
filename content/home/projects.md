@@ -28,7 +28,7 @@ content:
   - name: All
     tag: '*'
   - name: Robotics
-    tag: Computer Vision, ROS
+    tag: Computer Vision, ROS, SLAM
   # - name: Mobile Robots
   #   tag: Simulation, ROS, Alexa
   # - name: Other
