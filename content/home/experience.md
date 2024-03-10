@@ -21,41 +21,41 @@ date_format: Jan 2006
 #   Required fields are `title`, `company`, and `date_start`.
 #   Leave `date_end` empty if it's your current employer.
 #   Begin multi-line descriptions with YAML's `|2-` multi-line prefix.
-experience:
-  - title: Robotic Software Engineer, Computer Vision and Navigation 
-    company: Robotic Research LLC
-    company_url: ''
-    location: Mayland
-    date_start: '2020-02'
-    date_end: '2021-06'
-    description: |2-
-        Responsibilities include:
+# experience:
+#   - title: Robotic Software Engineer, Computer Vision and Navigation 
+#     company: Robotic Research LLC
+#     company_url: ''
+#     location: Mayland
+#     date_start: '2020-02'
+#     date_end: '2021-06'
+#     description: |2-
+#         Responsibilities include:
         
-        * Training and deploying ML models 
-        * Prototype robot's perception system  
+#         * Training and deploying ML models 
+#         * Prototype robot's perception system  
 
-  - title: Software Engineer, Computer Vision and Navigation 
-    company: Abundant Robotics
-    company_url: ''
-    location: California
-    date_start: '2020-02'
-    date_end: '2021-06'
-    description: |2-
-        Responsibilities include:
+#   - title: Software Engineer, Computer Vision and Navigation 
+#     company: Abundant Robotics
+#     company_url: ''
+#     location: California
+#     date_start: '2020-02'
+#     date_end: '2021-06'
+#     description: |2-
+#         Responsibilities include:
         
-        * Training and deploying ML models 
-        * Improving the robot's navigation system using sensor fusion and computer vision 
-        * Survey and Stay up with the latest SOTA methods in Computer Vision and navigation field  
+#         * Training and deploying ML models 
+#         * Improving the robot's navigation system using sensor fusion and computer vision 
+#         * Survey and Stay up with the latest SOTA methods in Computer Vision and navigation field  
         
-  - title: ROS Software Intern 
-    company: MathWorks
-    company_url: ''
-    location: Boston, MA
-    date_start: '2019-06-01'
-    date_end: '2019-08-31'
-    description: |2-
-      Responsibilities include:
+#   - title: ROS Software Intern 
+#     company: MathWorks
+#     company_url: ''
+#     location: Boston, MA
+#     date_start: '2019-06-01'
+#     date_end: '2019-08-31'
+#     description: |2-
+#       Responsibilities include:
     
-      * Survey ROS2 bag features
-      * Implement an interpreter to visualize Velodyne LIDAR point cloud data from rosbag files 
+#       * Survey ROS2 bag features
+#       * Implement an interpreter to visualize Velodyne LIDAR point cloud data from rosbag files 
 ---

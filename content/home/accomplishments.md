@@ -23,13 +23,29 @@ date_format: Jan 2006
 #   Leave other parameters empty if not required.
 #   Begin multi-line descriptions with YAML's `|2-` multi-line prefix.
 item:
-- certificate_url: https://www.coursera.org/account/accomplishments/verify/64R2FGMTJSEC
   date_end: ""
-  date_start: "2018-10-01"
-  description: ""
-  organization: Coursera
-  organization_url: https://www.coursera.org
-  title: Neural Networks and Deep Learning
-  url: ""
+  date_start: "2023-07-14"
+  description: "Best Student Paper Award Finalist"
+  organization: Robotics Science and Systems
+  organization_url: https://roboticsconference.org/
+  title: Robotics Science and Systems 2023
+  url: "https://roboticsconference.org/2023/program/awards/"
 
+item:
+  date_end: ""
+  date_start: "2012-05-13"
+  description: "Secured Third place in all county science fair under physics category"
+  organization: Science Montgomery
+  organization_url: http://www.sciencemontgomery.org/
+  title: Science Montgomery Science Fair
+  url: "https://www.montgomeryschoolsmd.org/siteassets/schools/high-schools/k-q/poolesvillehs/uploadedfiles/about/montgomerysciencefair.pdf"
+
+item:
+  date_end: ""
+  date_start: "2022-06-29"
+  description: "I Lead the team Guardian Angles from the proposal stage all the way to the final stage, where we reached final stage in the FastFind Challenge , competiting against 20 other teams, and secured 10k in funding. We successfully developed a prototype designed to aid firefighters in search and rescue operations"
+  organization: National Institute of Technology (NIST)
+  organization_url: https://www.nist.gov/ctl/pscr/open-innovation-prize-challenges/past-prize-challenges
+  title: NIST USV Fast Find Challenge 
+  url: "https://www.youtube.com/watch?v=SVmr-d03qb4&ab_channel=SaimouliKatragadda"
 ---

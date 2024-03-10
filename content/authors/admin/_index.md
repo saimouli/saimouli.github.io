@@ -6,7 +6,7 @@ title: Saimouli Katragadda
 superuser: true
 
 # Role/position/tagline
-role: Robotic Software Engineer
+role: Research Assistant
 
 # Organizations/Affiliations to show in About widget
 organizations:
@@ -18,14 +18,17 @@ bio: My research interests include SLAM, State Estimation, and Deep Learning.
 
 # Interests to show in About widget
 interests:
-- Robotics
-- Artificial Intelligence
 - Computer Vision 
-- State Estimation and Controls 
+- State Estimation and Controls
+- Robotics
+- Deep Learning
 
 # Education to show in About widget
 education:
   courses:
+  - course: PhD in Computer Science/Robotics
+    institution: University of Delaware
+    year: 2022
   - course: MEng in Robotics
     institution: University of Maryland
     year: 2019
@@ -68,9 +71,8 @@ email: "ksaimouli@gmail.com"
 highlight_name: false
 ---
 
-Hi! I am currently working as a Robotics Engineer at Abundant Robotics, an agricultural startup. I have graduated from the <a href="//umd.edu/" target="_blank">University of Maryland College Park (UMD) for Robotics Studies</a> (UMD), where I was part of Micro Aerial Vehicle (AMAV) advised by <a href="https://aero.umd.edu/clark/faculty/58/Derek-A-Paley" target="_blank">Prof. Derek Paley</a>. 
-My research interests include robotics, state estimation, computer vision, and machine learning.
+Hi there! I am currently a PhD student in the RPNG group <a href="https://sites.udel.edu/robot/" target="_blank"> where I am researching in Visual Inertial Perception. My work sits at the dynamic intersection of estimation theory, computer vision and cutting-edge deep learning. Prior to joining RPNG, I had the pleasure working with exciting people at Abundant Robotics, an agricultural startup automating farming practices. Later, I spent an year at Robotic Research where I contributed to development of automating mass transport. I have graduated from the <a href="//umd.edu/" target="_blank">University of Maryland College Park (UMD) for Robotics Studies</a> (UMD), where I was part of Micro Aerial Vehicle (AMAV) advised by <a href="https://aero.umd.edu/clark/faculty/58/Derek-A-Paley" target="_blank">Prof. Derek Paley</a>. 
 
-In my spare time, I can often be found fixing and building robots, learning guitar, watching movies, playing tennis, chess, or table tennis.
+In my spare time, I can often be found fixing and building robots, learning guitar, watching movies, and playing tennis or table tennis.
 
 <!-- {{< icon name="download" pack="fas" >}} Download my {{< staticref "media/demo_resume.pdf" "newtab" >}}resumé{{< /staticref >}}. -->
