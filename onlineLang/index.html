@@ -1,195 +1,236 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
-<head lang="en">
+<head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Online Language Splatting</title>
 
-    <title>Online-Lang</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
 
-
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
-
+    <!-- External Stylesheets -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.css">
-    <link rel="stylesheet" href="css/app.css">
 
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
 
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- External Scripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.3/clipboard.min.js"></script>
-    
     <script src="js/app.js"></script>
     <script src="js/video_comparison.js"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2, h3 {
+            color: #ff5722;
+        }
+
+        h3 {
+            font-size: 1.8em;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .row {
+            margin: 20px 0;
+        }
+
+        ul.list-inline {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            text-align: center;
+        }
+
+        ul.list-inline li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        ul.nav-pills {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+        }
+
+        ul.nav-pills li {
+            margin: 0 15px;
+        }
+
+        ul.nav-pills li a {
+            text-decoration: none;
+            color: #333;
+            text-align: center;
+        }
+
+        ul.nav-pills li img {
+            height: 60px;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card {
+            background: #fff;
+            border-left: 5px solid #ff5722;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .highlighted-text {
+            color: #ff5722;
+            font-weight: bold;
+        }
+
+        .text-justify {
+            text-align: justify;
+            line-height: 1.6;
+        }
+
+        .carousel-container {
+            position: relative;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .carousel-slide {
+            display: none;
+            text-align: center;
+        }
+
+        .carousel-slide.active {
+            display: block;
+        }
+
+        .carousel-btn {
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .carousel-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .carousel-indicator {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            background: #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .carousel-indicator.active {
+            background: #ff5722;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container" id="main">
-        <div class="row">
-            <h2 class="col-md-10 text-center col-md-offset-1">
-                <b>Online Language Splatting</b></br> 
-            </h2>
+        <!-- Title Section -->
+        <div class="row text-center">
+            <h2><b>Online Language Splatting</b></h2>
         </div>
-        
+
+        <!-- Authors Section -->
         <div class="row">
-            <div class="col-md-12 text-center">
-                <ul class="list-inline">
-                    <li>
-                        <a href="https://saimouli.github.io/">
-                          Saimouli Katragadda
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://sites.google.com/view/abhinavkumar">
-                            Cho-Ying Wu
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://yuliangguo.github.io/">
-                            Yuliang Guo
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://scholar.google.com/citations?user=cL4bNBwAAAAJ&hl=en">
-                          Xinyu Huang
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://udel.edu/~ghuang/">
-                          Guoquan Huang
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://sites.google.com/site/liurenshomepage/">
-                          Liu Ren
-                        </a>
-                    </li>
-                    </br>University of Delaware, Bosch Research North America Center for AI
-                </ul>
+            <ul class="list-inline">
+                <li><a href="https://saimouli.github.io/">Saimouli Katragadda</a></li>
+                <li><a href="https://sites.google.com/view/abhinavkumar">Cho-Ying Wu</a></li>
+                <li><a href="https://yuliangguo.github.io/">Yuliang Guo</a></li>
+                <li><a href="https://scholar.google.com/citations?user=cL4bNBwAAAAJ&hl=en">Xinyu Huang</a></li>
+                <li><a href="https://udel.edu/~ghuang/">Guoquan Huang</a></li>
+                <li><a href="https://sites.google.com/site/liurenshomepage/">Liu Ren</a></li>
+            </ul>
+            <p class="text-center">University of Delaware, Bosch Research North America Center for AI</p>
+        </div>
+
+        <!-- Navigation Section -->
+        <div class="row">
+            <ul class="nav nav-pills">
+                <li><a href=""><img src="img/paper_img.png" alt="Paper"><h4><strong>Paper</strong></h4></a></li>
+                <li><a href="https://youtu.be/GIldru2006k"><img src="img/youtube_icon.png" alt="Video"><h4><strong>Video</strong></h4></a></li>
+                <li><a href=""><img src="img/github_pad.png" alt="Code"><h4><strong>Code</strong></h4></a></li>
+            </ul>
+        </div>
+
+        <!-- Sections-->
+        <!-- Section 1: Why Choose Our Approach -->
+        <div class="row">
+            <div class="col-md-6">
+                <img src="img/langslam.gif" alt="LangSLAM Comparison GIF">
             </div>
-        </div>
-
-
-        <div class="row">
-                <div class="col-md-6 col-md-offset-3 text-center">
-                    <ul class="nav nav-pills nav-justified">
-                        <li>
-                            <a href="">
-                            <image src="img/paper_img.png" height="60px">
-                                <h4><strong>Paper</strong></h4>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="">
-                            <image src="img/youtube_icon.png" height="60px">
-                                <h4><strong>Video</strong></h4>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="">
-                            <image src="img/github_pad.png" height="60px">
-                                <h4><strong>Code</strong></h4>
-                            </a>
-                        </li>
-                    </ul>
+            <div class="col-md-6">
+                <div class="feature-card">
+                    <h3>Sharp, Dense Features</h3>
+                    <p>Our approach delivers <span class="highlighted-text">highly dense</span> and sharp language-aligned features for 3D representations in real-time.</p>
                 </div>
-        </div>
-
-<br>
-
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<style>
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f9f9f9;
-        color: #333;
-        margin: 0;
-    }
-
-    h3 {
-        font-size: 1.8em;
-        font-weight: 700;
-        color: #ff5722;
-        text-align: left;
-    }
-
-    .feature-card {
-        background: #ffffff;
-        border-left: 5px solid #ff5722;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin: 15px 0;
-        transition: transform 0.3s ease;
-    }
-
-    .feature-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .abstract-section {
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-top: 20px;
-    }
-
-    .highlighted-text {
-        color: #ff5722;
-        font-weight: bold;
-    }
-
-    img {
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
-
-    img:hover {
-        transform: scale(1.03);
-    }
-
-    .text-justify {
-        text-align: justify;
-        line-height: 1.6;
-    }
-</style>
-
-<div class="container">
-    <!-- Section 1: Why Choose Our Approach -->
-    <div class="row align-items-center" style="margin-top: 40px;">
-        <div class="col-md-6 text-center" style="padding: 20px;">
-            <img src="img/langslam.gif" alt="LangSLAM Comparison GIF" width="100%">
-        </div>
-        <div class="col-md-6">
-            <div class="feature-card">
-                <h3>Sharp, Dense Features</h3>
-                <p class="text-justify">
-                    Our approach delivers <span class="highlighted-text">highly dense</span> and sharp language-aligned features for 3D representations.
-                </p>
-            </div>
-            <div class="feature-card">
-                <h3>Faster Processing</h3>
-                <p class="text-justify">
-                    Process frames <span class="highlighted-text">215x faster</span>: <strong>0.8 seconds/frame</strong> compared to LangSplat's <strong>2.88 minutes/frame</strong>.
-                </p>
+                <div class="feature-card">
+                    <h3>Faster Processing</h3>
+                    <p>Process frames <span class="highlighted-text">215x faster</span>: <strong>0.8 seconds/frame</strong> compared to LangSplat's <strong>2.88 minutes/frame</strong>.</p>
+                </div>
             </div>
         </div>
-    </div>
 
         <!-- Section 2: Abstract -->
-        <div class="row" style="margin-top: 40px;">
+        <div class="row">
             <div class="col-md-8 col-md-offset-2">
                 <h3>Abstract</h3>
                 <p class="text-justify">
                     To enable AI agents to interact seamlessly with both humans and 3D environments, they must not only perceive the 3D world accurately but also align human language with 3D spatial representations. 
                     While prior work has made significant progress by integrating language features into geometrically detailed 3D scene representations using 3D Gaussian Splatting, these approaches rely on computationally 
                     intensive offline preprocessing of language features for each input image, limiting adaptability to new environments.
+                    <br><br>
                     In this work, we introduce <strong>Online Language Splatting</strong>, the first framework to achieve real-time, open-vocabulary 
                     language mapping within a 3D Gaussian Splatting SLAM system without requiring pre-generated language features. 
                     The key challenge we address is the efficiency of fusing high-dimensional language features into 3D representations 
@@ -199,59 +240,115 @@
         </div>
 
         <!-- Section 3: Pipeline -->
-        <div class="row" style="margin-top: 40px;">
+        <div class="row">
             <div class="col-md-8 col-md-offset-2">
                 <h3>Pipeline</h3>
                 <div class="text-center">
-                    <img src="img/pipeline_lang.png" width="100%" alt="Pipeline Diagram">
+                    <img src="img/pipeline_lang.png" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" alt="Pipeline Diagram">
                 </div>
-                <p class="text-justify" style="margin-top: 10px;">
-                    Our pipeline, for the first time, is capable of performing language mapping in real-time.
+                <p class="text-justify" style="margin-top: 20px;">
+                    Our pipeline integrates 3D Gaussian Splatting with SLAM, using 3D Gaussians as the sole mapping elements. 
+                    Left: During training, raw images are processed through a High-Resolution CLIP embedding module, 
+                    which generates high-resolution language features in real-time. These features are compressed via a 
+                    two-stage CLIP compression module into low-dimensional maps for efficient optimization while preserving open-vocabulary capabilities. 
+                    RGB and language parameters are optimized separately through disentangled optimization within the 3D Gaussian map to accommodate distinct requirements. 
+                    Right: At inference, the rendered low-dimensional language map undergoes a two-stage decoding process to reconstruct the full CLIP feature map, 
+                    enabling open-vocabulary queries to locate target objects, such as “stool”.
+                </p>
+
+                <div class="text-center">
+                    <img src="img/optimization_diff.png" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" alt="Pipeline Diagram">
+                </div>
+                <p class="text-justify" style="margin-top: 20px;">
+                    Disentangled optimization preserves the image quality without affecting the language quality
                 </p>
             </div>
         </div>
 
-        <!-- Section 4: Visual Comparison -->
+        <!-- Language query -->
         <div class="row" style="margin-top: 40px;">
             <div class="col-md-8 col-md-offset-2">
-                <h3>Visual Comparison</h3>
+                <h3>Indoor Plant Language Query</h3>
                 <div class="text-center">
                     <video id="v0" width="100%" autoplay loop muted>
-                        <source src="img/visual_compare_video.mp4" type="video/mp4" />
+                        <source src="vid/heatmap_plant_slam.mp4" type="video/mp4" />
                     </video>
                 </div>
             </div>
         </div>
 
-        <!-- Section 5: Citation -->
-        <div class="row" style="margin-top: 40px;">
-            <div class="col-md-8 col-md-offset-2">
-                <h3>Citation</h3>
-                <textarea id="bibtex" class="form-control" readonly style="width: 100%; height: 150px; border: 1px solid #ccc; border-radius: 5px; padding: 10px;">
-    @article{yourpaper,
-        title={Online Language Splatting},
-        author={Your Name et al.},
-        journal={Conference Name},
-        year={2024}
-    }
-                </textarea>
+        <!-- Section 4: 3D Evaluation Comparison -->
+        <!-- Carousel Section -->
+        <div class="row">
+            <h3>3D Evaluation Comparison</h3>
+            <div class="carousel-container">
+                <div class="carousel-slide active"><img src="img/carpet_3d_eval.png" alt="Image 1"></div>
+                <div class="carousel-slide"><img src="img/chairs_3d_eval.png" alt="Image 2"></div>
+                <div class="carousel-slide"><img src="img/table_3d_eval.png" alt="Image 3"></div>
+                <div class="carousel-slide"><img src="img/indoor_plant_3d-eval.png" alt="Image 4"></div>
+                <div class="carousel-buttons">
+                    <button class="carousel-btn" id="prevBtn">&#10094;</button>
+                    <button class="carousel-btn" id="nextBtn">&#10095;</button>
+                </div>
+            </div>
+            <div class="carousel-indicators" id="carouselIndicators">
+                <span class="carousel-indicator active"></span>
+                <span class="carousel-indicator"></span>
+                <span class="carousel-indicator"></span>
+                <span class="carousel-indicator"></span>
             </div>
         </div>
+        <!-- Section 5: Citation -->
+<div class="row" style="margin-top: 40px;">
+    <div class="col-md-8 col-md-offset-2">
+        <h3>Citation</h3>
+        <pre style="background-color: #f9f9f9; border: 1px solid #ccc; border-radius: 5px; padding: 15px; font-size: 14px; line-height: 1.6; overflow-x: auto;">
+@inproceedings{onlinelang,
+    title = {Online Language Splatting},
+    author = {Saimouli Katragadda, Cho-Ying Wu, Yuliang Guo, Xinyu Huang, Guoquan Huang, Liu Ren},
+    journal = {arxiv},
+    year = {2025}
+}
+        </pre>
     </div>
+</div>
+        <!-- Carousel Scripts -->
+        <script>
+            const slides = document.querySelectorAll('.carousel-slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const indicators = document.querySelectorAll('.carousel-indicator');
 
+            let currentIndex = 0;
 
-        <!-- <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <h3>
-                    Acknowledgements
-                </h3>
-                <p class="text-justify">
-                Thanks to Janne Kontkanen, Rick Szeliski, and David Salesin for their comments on the text, and to Ricardo Martin-Brualla, Keunhong Park, Ben Poole, Aleksander Hołyński, Etienne Pot, Kostas Rematas, Daniel Duckworth, Marcos Seefelder, Cardin Moffett, and Peter Zhizhin for their advice and help.
-                    <br><br>
-                The website template was borrowed from <a href="http://mgharbi.com/">Michaël Gharbi</a> and <a href="https://dorverbin.github.io/refnerf">Ref-NeRF</a>.
-                </p>
-            </div>
-        </div> -->
+            function updateCarousel() {
+                slides.forEach((slide, index) => {
+                    slide.classList.toggle('active', index === currentIndex);
+                });
+                indicators.forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index === currentIndex);
+                });
+            }
+
+            prevBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex > 0) ? currentIndex - 1 : slides.length - 1;
+                updateCarousel();
+            });
+
+            nextBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex < slides.length - 1) ? currentIndex + 1 : 0;
+                updateCarousel();
+            });
+
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => {
+                    currentIndex = index;
+                    updateCarousel();
+                });
+            });
+
+            updateCarousel();
+        </script>
     </div>
 </body>
 </html>
