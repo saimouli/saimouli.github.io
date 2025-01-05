@@ -7,6 +7,9 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Online Language Splatting</title>
 
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
 
@@ -33,19 +36,19 @@
     <!-- Custom Styles -->
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #0c0c0c;
             margin: 0;
             padding: 0;
         }
 
         h2, h3 {
-            color: #ff5722;
+            color: #0d0d0d;
         }
 
         h3 {
-            font-size: 1.8em;
+            font-size: 2.2em;
             text-align: left;
             margin-bottom: 20px;
         }
@@ -121,6 +124,7 @@
         .text-justify {
             text-align: justify;
             line-height: 1.6;
+            font-size: medium;
         }
 
         .carousel-container {
@@ -176,25 +180,40 @@
 </head>
 
 <body>
-    <div class="container" id="main">
+    <div class="container" id="main" style="font-family: Arial, sans-serif;">
         <!-- Title Section -->
-        <div class="row text-center">
-            <h2><b>Online Language Splatting</b></h2>
+        <div class="row text-center" style="margin-bottom: 30px;">
+            <h1 style="font-size: 40px; font-weight: bold; color: black; margin-bottom: 10px;">Online Language Splatting</h1>
         </div>
 
-        <!-- Authors Section -->
-        <div class="row">
-            <ul class="list-inline">
-                <li><a href="https://saimouli.github.io/">Saimouli Katragadda</a></li>
-                <li><a href="https://sites.google.com/view/abhinavkumar">Cho-Ying Wu</a></li>
-                <li><a href="https://yuliangguo.github.io/">Yuliang Guo<span style="color: #ff5722;">*</span></a></li>
-                <li><a href="https://scholar.google.com/citations?user=cL4bNBwAAAAJ&hl=en">Xinyu Huang</a></li>
-                <li><a href="https://udel.edu/~ghuang/">Guoquan Huang</a></li>
-                <li><a href="https://sites.google.com/site/liurenshomepage/">Liu Ren</a></li>
+        <div class="row text-center">
+            <ul class="list-inline" style="font-size: 2px; font-weight: 500; margin-bottom: 20px;">
+                <li style="margin-right: 15px;">
+                    <a href="https://saimouli.github.io/" style="text-decoration: none; font-size: 21px;">Saimouli Katragadda<sup>1</sup></a>
+                </li>
+                <li style="margin-right: 15px;">
+                    <a href="https://choyingw.github.io" style="text-decoration: none;font-size: 21px;">Cho-Ying Wu<sup>2</sup></a>
+                </li>
+                <li style="margin-right: 15px;">
+                    <a href="https://yuliangguo.github.io/" style="text-decoration: none;font-size: 21px;">Yuliang Guo<sup>2</sup></a>
+                    <span style="color: #ff5722; font-size: 22px;">*</span>
+                </li>
+                <li style="margin-right: 15px;">
+                    <a href="https://scholar.google.com/citations?user=cL4bNBwAAAAJ&hl=en" style="text-decoration: none;font-size: 21px;">Xinyu Huang<sup>2</sup></a>
+                </li>
+                <li style="margin-right: 15px;">
+                    <a href="https://udel.edu/~ghuang/" style="text-decoration: none;font-size: 21px;">Guoquan Huang<sup>1</sup></a>
+                </li>
+                <li>
+                    <a href="https://sites.google.com/site/liurenshomepage/" style="text-decoration: none;font-size: 21px;">Liu Ren<sup>2</sup></a>
+                </li>
             </ul>
-            <p class="text-center">University of Delaware, Bosch Research North America Center for AI</p>
-            <p class="text-center" style="font-size: 14px; margin-top: 10px;">
-                <span style="color: #ff5722;">*</span> Corresponding author</a>
+            <!-- Affiliations -->
+            <p style="font-size: 20px; font-weight: 500; margin-bottom: 5px;">
+                <sup>1</sup>University of Delaware, <sup>2</sup>Bosch Research North America Center for AI
+            </p>
+            <p style="font-size: 16px; color: gray; margin-top: 10px;">
+                <span style="color: #ff5722;">*</span> Corresponding author
             </p>
         </div>
 
@@ -207,6 +226,16 @@
             </ul>
         </div>
 
+        <div class="row text-center" style="margin-top: 30px;">
+            <li style="display: inline-block; margin-right: 20px;">
+                <!-- Embedded YouTube Video -->
+                <iframe width="1280" height="720" src="https://www.youtube.com/embed/GIldru2006k" 
+                        title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                </iframe>
+                <h4><strong>Video</strong></h4>
+            </li>
+        </div>
+
         <!-- Sections-->
         <!-- Section 1: Why Choose Our Approach -->
         <div class="row">
@@ -215,8 +244,8 @@
             </div>
             <div class="col-md-6">
                 <div class="feature-card">
-                    <h3>Sharp, Dense Features</h3>
-                    <p>Our approach delivers <span class="highlighted-text">highly dense</span> and sharp language-aligned features for 3D representations in real-time.</p>
+                    <h3>Online, Dense Features</h3>
+                    <p>Our approach delivers <span class="highlighted-text">highly dense</span> and sharp language-aligned features for 3D representations in <span class="highlighted-text">real-time</span>.</p>
                 </div>
                 <div class="feature-card">
                     <h3>Faster Processing</h3>
