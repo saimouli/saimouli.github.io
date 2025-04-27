@@ -35,6 +35,9 @@
 	    <link href="css/boxicons/css/boxicons.min.css" rel="stylesheet">
 	    <link rel="stylesheet" href="https://cdn.rawgit.com/jpswalsh/academicons/master/css/academicons.min.css">
 	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+      <!-- MathJax for rendering math equations -->
+      <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       <!-- Global site tag (gtag.js) - Google Analytics -->
       <script async src="https://www.googletagmanager.com/gtag/js?id=UA-171009851-1"></script>
       <script>
@@ -74,6 +77,7 @@
 				<div class="container">
 					<h3 class="text-heading">I love to learn and spread knowledge</h3>
                     <p>
+                        Here you'll find tutorials on various topics related to robotics, computer vision, and state estimation.
                     </p>
 				</div>
 			</section>
@@ -84,18 +88,32 @@
 					<div class="section-top-border">
 						<h3 class="mb-30">Estimation Fundamentals</h3>
 						<div class="row">
-                            <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4">
-                                <section id="tutorials" class="services">
-
-                              </section>
-                            </div>
+							<!-- Tutorial Card for Estimation Fundamentals -->
+							<div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4">
+								<div class="card">
+									<img src="img/tutorials/probability_review/blog_post_1.png" class="card-img-top" alt="Probability Review">
+									<div class="card-body">
+										<h5 class="card-title">Probability Review</h5>
+										<p class="card-text">Learn about the fundamental statistics that every roboticist will encounter, including probability theory, Bayes filters, and more.</p>
+										<a href="tutorials/probability_review/prob.html" class="btn btn-primary">Read Tutorial</a>
+									</div>
+								</div>
+							</div>
+							
+							<!-- Placeholder for future tutorials -->
+							<!-- 
+							<div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4">
+								<div class="card">
+									<img src="img/tutorials/future_tutorial.jpg" class="card-img-top" alt="Future Tutorial">
+									<div class="card-body">
+										<h5 class="card-title">Future Tutorial</h5>
+										<p class="card-text">Description of the future tutorial content.</p>
+										<a href="tutorials/future_tutorial.html" class="btn btn-primary">Read Tutorial</a>
+									</div>
+								</div>
+							</div>
+							-->
 						</div>
-                            
-            <!-- End top-category-widget Area -->
-                        </div>
-						<hr>
-
-
 					</div>
 				</div>
 			</div>
@@ -119,10 +137,8 @@
                                 <h4>Follow Me</h4>
                                 <p>Let us be social</p>
                                 <div class="footer-social d-flex align-items-center">
-                                  <h4>Follow Me</h4>
-                                  <p>Let us be social</p>
-                                  <div class="footer-social d-flex align-items-center">
-                                    <a title="Google Scholar" href="https://scholar.google.com/citations?user=dYXPw9wAAAAJ&hl=en" style="padding-top: 8px" class="ai"><i class="ai ai-google-scholar"></i></a>&nbsp;
+                                  <a title="Google Scholar" href="https://scholar.google.com/citations?user=dYXPw9wAAAAJ&hl=en" style="padding-top: 8px" class="ai"><i class="ai ai-google-scholar"></i></a>&nbsp;
+                                  <a title="Github" href="http://github.com/saimouli/" class="github"><i class="fa fa-github"></i></a>&nbsp;
                                 </div>
                             </div>
                         </div>

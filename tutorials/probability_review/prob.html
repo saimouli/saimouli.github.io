@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zxx" class="no-js">
+<head>
+    <!-- Mobile Specific Meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Favicon-->
+    <link rel="shortcut icon" href="../../img/fav.png">
+    <!-- Author Meta -->
+    <meta name="author" content="Saimouli Katragadda">
+    <!-- Meta Description -->
+    <meta name="description" content="Estimation Fundamentals Tutorial">
+    <!-- Meta Keyword -->
+    <meta name="keywords" content="robotics, estimation, probability, statistics">
+    <!-- meta character set -->
+    <meta charset="UTF-8">
+    <!-- Site Title -->
+    <title>Probability Review | Saimouli Katragadda</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700" rel="stylesheet"> 
+    <!--
+    CSS
+    ============================================= -->
+    <link rel="stylesheet" href="../../css/linearicons.css">
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/bootstrap.css">
+    <link rel="stylesheet" href="../../css/magnific-popup.css">            
+    <link rel="stylesheet" href="../../css/nice-select.css">                            
+    <link rel="stylesheet" href="../../css/animate.min.css">
+    <link rel="stylesheet" href="../../css/owl.carousel.css">            
+    <link rel="stylesheet" href="../../css/jquery-ui.css">            
+    <link rel="stylesheet" href="../../css/main.css">
+    <link href="../../css/icofont/icofont.min.css" rel="stylesheet">
+    <link href="../../css/remixicon/remixicon.css" rel="stylesheet">
+    <link href="../../css/owl.carousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="../../css/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/jpswalsh/academicons/master/css/academicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <!-- MathJax for rendering math equations -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- Custom CSS for tutorials -->
+    <style>
+        body {
+            font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+            background: #f7f8fa;
+            color: #232323;
+            font-size: 1.15rem;
+            line-height: 1.85;
+        }
+        .tutorial-area {
+            padding: 60px 0 40px 0;
+        }
+        .tutorial-header {
+            margin-bottom: 2.5rem;
+        }
+        .tutorial-header h1 {
+            font-size: 2.7rem;
+            font-weight: 700;
+            color: #4a4a4a;
+            letter-spacing: -1px;
+        }
+        .tutorial-header .text-muted {
+            font-size: 1.2rem;
+            color: #8490ff !important;
+        }
+        .tutorial-meta {
+            margin-top: 0.7rem;
+            font-size: 1rem;
+            color: #888;
+        }
+        .tutorial-content {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(132,144,255,0.07);
+            padding: 2.5rem 2.2rem;
+            margin-bottom: 2rem;
+        }
+        .tutorial-content h2 {
+            margin-top: 2.2rem;
+            margin-bottom: 1.1rem;
+            color: #8490ff;
+            font-weight: 600;
+            font-size: 2rem;
+        }
+        .tutorial-content h3 {
+            margin-top: 1.7rem;
+            margin-bottom: 0.9rem;
+            color: #555;
+            font-weight: 500;
+            font-size: 1.3rem;
+        }
+        .tutorial-content p {
+            margin-bottom: 1.2rem;
+            font-size: 1.13rem;
+        }
+        .tutorial-content ul, .tutorial-content ol {
+            margin-bottom: 1.2rem;
+            padding-left: 2.2rem;
+        }
+        .tutorial-content li {
+            margin-bottom: 0.5rem;
+            font-size: 1.13rem;
+        }
+        .tutorial-content .math-block {
+            background-color: #f9f9ff;
+            padding: 1.1rem 1.5rem;
+            margin: 1.7rem 0;
+            border-left: 4px solid #8490ff;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 1.18rem;
+        }
+        .tutorial-content .definition {
+            background-color: #eaf3ff;
+            padding: 1.1rem 1.5rem;
+            margin: 1.2rem 0;
+            border-radius: 6px;
+            border-left: 4px solid #4682b4;
+            font-size: 1.12rem;
+        }
+        .tutorial-content .note {
+            background-color: #fffbe7;
+            padding: 1.1rem 1.5rem;
+            margin: 1.2rem 0;
+            border-radius: 6px;
+            border-left: 4px solid #ffd700;
+            font-size: 1.12rem;
+        }
+        .tutorial-content figure {
+            margin: 2.2rem 0;
+            text-align: center;
+        }
+        .tutorial-content figcaption {
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: 1rem;
+        }
+        .tutorial-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 7px;
+            box-shadow: 0 4px 12px rgba(132,144,255,0.10);
+        }
+        .tutorial-content a {
+            color: #8490ff;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .tutorial-content a:hover {
+            text-decoration: underline;
+            color: #5a63d8;
+        }
+        .tutorial-content .sources {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        .back-to-tutorials {
+            margin: 2rem 0;
+        }
+        .btn-outline-primary {
+            border-color: #8490ff;
+            color: #8490ff;
+            background: #fff;
+            transition: all 0.2s;
+        }
+        .btn-outline-primary:hover {
+            background: #8490ff;
+            color: #fff;
+        }
+        @media (max-width: 768px) {
+            .tutorial-content {
+                padding: 1.2rem 0.7rem;
+            }
+            .tutorial-header h1 {
+                font-size: 2rem;
+            }
+        }
+        /* Equation number style */
+        .equation-number {
+            float: right;
+            color: #b0b0b0;
+            font-size: 0.95em;
+            margin-left: 1em;
+        }
+    </style>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-171009851-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-171009851-1');
+    </script>
+</head>
+<body>    
+    <!-- Header -->
+    <header id="header">
+        <div class="container main-menu">
+            <div class="row align-items-center justify-content-between d-flex">
+                <div id="logo">
+                    <a href="../../index.html"><img src="../../img/logos/1.png" width="48px" alt="" title=""></a>
+                </div>
+                <nav id="nav-menu-container">
+                    <ul class="nav-menu">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="../../about.html">About</a></li>
+                        <li><a href="../../research.html">Research</a></li>
+                        <li><a href="../../tutorials.html">Tutorials</a></li>
+                    </ul>
+                </nav><!-- #nav-menu-container -->                
+            </div>
+        </div>
+    </header><!-- #header -->    
+    
+    <!-- Tutorial Content Area -->
+    <section class="tutorial-area section-gap">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="back-to-tutorials">
+                        <a href="../../tutorials.html" class="btn btn-outline-primary"><i class="fa fa-arrow-left"></i> Back to Tutorials</a>
+                    </div>
+                    
+                    <div class="tutorial-header text-center mb-5">
+                        <h1>Estimation Fundamentals</h1>
+                        <p class="text-muted">A comprehensive guide to probability theory and statistical estimation for robotics</p>
+                        <div class="tutorial-meta">
+                            <span><i class="fa fa-calendar"></i> Last Updated: July 2023</span>
+                            <span class="ml-3"><i class="fa fa-clock-o"></i> Reading Time: 15 minutes</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tutorial-content">
+                        <h2>Introduction</h2>
+                        <p>
+                            In this tutorial, I will go over some of the fundamental statistics that every roboticist will encounter at some point in their life. I am assuming the audience will know basic high school statistics and probability theory.
+                        </p>
+                        
+                        <h2>Motivation</h2>
+                        <p>
+                            No sensor is perfect! Imagine Rami bot, a rumba-like robot with a sonar distance sensor attached. Using the sensor we wanted to predict where the obstacles are with respect to the world frame (start point of the Rami). Since the sensor is not perfect, it might be noisy and predict the obstacle distance to be 1ft short than what it is.
+                        </p>
+                        
+                        <p>
+                            To help improve Rami's obstacle estimates, being able to quantify the location of the obstacle is important to avoid crashes. For example, it would be helpful to Rami if we can say that the obstacle is ±0.5 ft with a confidence of 90%. This is much more useful for predicting and planning a possible route compared to the deterministic value we get from noisy measurements. This framework can be achieved using probability theory.
+                        </p>
+                        
+                        <div class="note">
+                            <strong>Note:</strong> Throughout this tutorial, we'll use Rami bot as our running example to illustrate how these statistical concepts apply to real-world robotics problems.
+                        </div>
+                        
+                        <h2>Axiomatic Probability Theory</h2>
+                        
+                        <div class="definition">
+                            <strong>Sample space:</strong> Universe of all possible outcomes of the experiments<br>
+                            \(S = \cup s_i\)
+                        </div>
+                        
+                        <p>
+                            Let \(s_i\) denote a possible outcome of an experiment. The collection of \(s_i\) denoted by \(S\) should be such that \(s_i\) are:
+                        </p>
+                        <ul>
+                            <li><strong>Mutually Exclusive:</strong> \(A_i \cap A_j = \emptyset; i \neq j\)</li>
+                            <li><strong>Exhaustive:</strong> Need to cover all possibilities of the outcome</li>
+                        </ul>
+                        
+                        <div class="definition">
+                            <strong>Event:</strong> Any subset of the sample space \(S\)
+                        </div>
+                        
+                        <p>
+                            <strong>Example:</strong> Coin flip<br>
+                            Possible samples in the experiment are either heads or tails
+                        </p>
+                        <p>\(S =\) { tails, heads}</p>
+                        <p>\(A =\) event heads → {heads}</p>
+                        
+                        <div class="definition">
+                            <strong>Random Variable:</strong> Mapping from a sample space to a number. Can take multiple values<br>
+                            \(X : S \rightarrow \mathbb{R}\)
+                        </div>
+                        
+                        <p>
+                            <strong>Notation:</strong> In literature, it is conventional to use capital letters to indicate random variables.
+                        </p>
+                        
+                        <p><strong>Example:</strong> Coin flip</p>
+                        <p>\(X =\) {heads, tails}</p>
+                        
+                        <p>
+                            If it takes a specific value, we indicate by \(P(X=\) heads) i.e., probability of getting heads.
+                        </p>
+                        
+                        <p><strong>Properties:</strong></p>
+                        <ul>
+                            <li>The probability distribution must sum to 1
+                                <div class="math-block">
+                                    \[\sum_{x} P(X = x) = 1\]
+                                </div>
+                            </li>
+                            <li>Always non-negative
+                                <div class="math-block">
+                                    \[P(X = x) \geq 0\]
+                                </div>
+                            </li>
+                        </ul>
+                        
+                        <p>For simplicity, instead of using \(P(X=x)\) from here, I will use \(P(x)\)</p>
+                        
+                        <h2>Probability Density</h2>
+                        <p>
+                            The probability density function is defined as:
+                        </p>
+                        <div class="math-block">
+                            \[f(x) = \frac{\partial F(x)}{\partial x}\]
+                            <span class="equation-number">(1)</span>
+                        </div>
+                        <p>where \(F(x)\) is the probability distribution function.</p>
+                        
+                        <p>
+                            In the robotics community, the Gaussian/normal density function is widely used.
+                        </p>
+                        
+                        <p>
+                            Parametrized by \(\mu\): mean, \(\sigma^{2}\): variance
+                        </p>
+                        
+                        <div class="math-block">
+                            \[p(X=x)=p(x)=\frac{1}{\sqrt{2 \pi \sigma^{2}}} e^{-\frac{(x-\mu)^{2}}{2 \sigma^{2}}}\]
+                            <span class="equation-number">(2)</span>
+                        </div>
+                        
+                        <p>
+                            <strong>Multi-variate case:</strong><br>
+                            Here \(\boldsymbol{x}\) is a vector instead of a scalar
+                        </p>
+                        
+                        <div class="math-block">
+                            \[P(\boldsymbol{x})=\frac{1}{\sqrt{(2 \pi)^{N} \operatorname{det}(\mathbf{\Sigma})}} \exp \left(-\frac{1}{2}(\boldsymbol{x}-\boldsymbol{\mu})^{T} \boldsymbol{\Sigma}^{-1}(\boldsymbol{x}-\boldsymbol{\mu})\right)\]
+                            <span class="equation-number">(3)</span>
+                        </div>
+                        
+                        <p>
+                            \(\boldsymbol{\Sigma}\) is called the covariance matrix.<br>
+                            <strong>Properties:</strong>
+                        </p>
+                        <ul>
+                            <li>Positive semi-definite</li>
+                            <li>Symmetric</li>
+                        </ul>
+                        
+                        <div class="note">
+                            <p>
+                                Don't worry if the above equation looks daunting. You'll see it in various books and will get comfortable with it over time. The key takeaways are the properties of the covariance matrix, and that the two parameters—mean and variance—are all that's needed to define a normal distribution for a state \(x\).
+                            </p>
+                        </div>
+                        
+                        <!-- <figure>
+                            <img src="../img/tutorials/gaussian_distribution.png" alt="Gaussian Distribution with different variances">
+                            <figcaption>Gaussian distributions with the same mean but different variances</figcaption>
+                        </figure> -->
+                        
+                        <h2>Conditional Probability</h2>
+                        <p>
+                            Often random variables carry information about other random variables. For example, LIDAR measurements can carry information about the robot's position.
+                        </p>
+                        
+                        <p>
+                            \(p(x\mid y) = p(X = x\mid Y = y)\) i.e., probability of x given y
+                        </p>
+                        
+                        <div class="math-block">
+                            \[p(x\mid y) = \frac{p(x,y)}{p(y)}, \quad p(y) > 0\]
+                            <span class="equation-number">(4)</span>
+                        </div>
+                        
+                        <p>
+                            If x and y are independent:
+                        </p>
+                        <div class="math-block">
+                            \[p(x,y) = p(x) \cdot p(y)\]
+                            <span class="equation-number">(5)</span>
+                        </div>
+                        
+                        <p>
+                            Therefore:
+                        </p>
+                        <div class="math-block">
+                            \[p(x\mid y) = \frac{p(x) \cdot p(y)}{p(y)} = p(x)\]
+                            <span class="equation-number">(6)</span>
+                        </div>
+                        
+                        <p>
+                            This makes sense, right? If \(y\) has no information about \(x\), then querying \(y\) won't contribute anything.
+                        </p>
+                        
+                        <h2>Most Used Theorems</h2>
+                        <p>
+                            Below are the most used theorems in solving probabilistic proofs and problems in various books:
+                        </p>
+                        
+                        <h3>Total Probability</h3>
+                        <div class="math-block">
+                            \[p(x) = \sum_{Y} p(x\mid y) p(y)\]
+                            <span class="equation-number">(7)</span>
+                        </div>
+                        
+                        <figure>
+                            <img src="../../img/tutorials/probability_review/blog_post_1.png" alt="Total probability disjoint sets">
+                            <figcaption>Total probability disjoint sets</figcaption>
+                        </figure>
+                        
+                        <p>
+                            \(B\) is the disjoint union of the intersection \((B \cap A_{i})\) i.e.,
+                        </p>
+                        
+                        <div class="math-block">
+                            \[B = \cup_{i = 3}^{6} A_{i}\]
+                            <span class="equation-number">(8)</span>
+                        </div>
+                        
+                        <div class="math-block">
+                            \[p(B) = p(\cup_{i = 3}^{6} (B \cap A_{i}))\]
+                            <span class="equation-number">(9)</span>
+                        </div>
+                        
+                        <div class="math-block">
+                            \[= \sum_{i = 3}^{6} p(B, A_{i})\]
+                            <span class="equation-number">(10)</span>
+                        </div>
+                        
+                        <div class="math-block">
+                            \[= \sum_{i = 3}^{6} p(B\mid A_{i}) p(A_{i})\]
+                            <span class="equation-number">(11)</span>
+                        </div>
+                        
+                        <h3>Chain Rule</h3>
+                        <div class="math-block">
+                            \[p\left(x_{1}, \ldots, x_{n}\right)=p\left(x_{n} \mid x_{n-1}, \ldots, x_{1}\right) p\left(x_{n-1}, \ldots, x_{1}\right)\]
+                            <span class="equation-number">(12)</span>
+                        </div>
+                        
+                        <p>
+                            Generally, we can formulate as follows:
+                        </p>
+                        
+                        <div class="math-block">
+                            \[p\left(\cap_{k=1}^{n} x_{k}\right)=\prod_{k=1}^{n} p\left(x_{k} \mid \cap_{j=1}^{k-1} x_{j}\right)\]
+                            <span class="equation-number">(13)</span>
+                        </div>
+                        
+                        <h3>Bayes Rule</h3>
+                        <div class="math-block">
+                            \[p(x\mid y) = \frac{p(y\mid x) \cdot p(x)}{p(y)} = \frac{p(y\mid x) \cdot p(x)}{\sum_{x'} p(y\mid x') p(x')} = \frac{\text{likelihood} \cdot \text{prior}}{\text{total probability}}\]
+                            <span class="equation-number">(14)</span>
+                        </div>
+                        
+                        <p>
+                            Sometimes the above can be written as follows:
+                        </p>
+                        
+                        <div class="math-block">
+                            \[p(x\mid y) = \eta \cdot p(y\mid x) \cdot p(x)\]
+                            <span class="equation-number">(15)</span>
+                        </div>
+                        
+                        <p>
+                            The Bayes rule can also be used for more than one random variable:
+                        </p>
+                        
+                        <div class="math-block">
+                            \[p(x \mid y, z)=\frac{p(y \mid x, z) p(x \mid z)}{p(y \mid z)}=\frac{p(z \mid x, y) p(x \mid y)}{p(z \mid y)}\]
+                            <span class="equation-number">(16)</span>
+                        </div>
+                        
+                        <h3>Conditional Independence</h3>
+                        <div class="math-block">
+                            \[p(x, y \mid z) = \frac{p(x, y, z)}{p(z)} = p(x\mid z) \cdot p(y \mid z)\]
+                            <span class="equation-number">(17)</span>
+                        </div>
+                        
+                        <h2>Expectation</h2>
+                        <div class="math-block">
+                            \[E[X] = \sum_{x} x \cdot p(x)\]
+                            <span class="equation-number">(18)</span>
+                        </div>
+                        
+                        <p><strong>Property:</strong></p>
+                        <ul>
+                            <li>Linearity
+                                <div class="math-block">
+                                    \[E[aX + b] = a \cdot E[X] + b\]
+                                    <span class="equation-number">(19)</span>
+                                </div>
+                            </li>
+                        </ul>
+                        
+                        <h2>Variance</h2>
+                        <p>
+                            Measures squared expected deviation \(\sigma\)
+                        </p>
+                        
+                        <div class="math-block">
+                            \[\begin{array}{c}
+                            \boldsymbol{\Sigma}(X, Y)=E[(X-E[X])(Y-E[Y])] \\
+                            \Sigma(X, Y)=\left[\begin{array}{cc}
+                            \sigma^{2}(x) & \sigma(x, y)=\sigma(x) \sigma(y) \\
+                            \sigma(y, x)=\sigma(y) \sigma(x) & \sigma^{2}(y)
+                            \end{array}\right]
+                            \end{array}\]
+                            <span class="equation-number">(20)</span>
+                        </div>
+                        
+                        <p><strong>Properties:</strong></p>
+                        <ul>
+                            <li>Bilinear: \(\sigma(ax + by, z) = a\sigma(x,z) + b\sigma(y,z)\)</li>
+                            <li>Symmetric: \(\sigma(x,y) = \sigma(y,x)\) (very handy)</li>
+                            <li>Positive semi-definite: \(\sigma^2(x) = \sigma(x,x) \geq 0\) \(\forall\) random variable</li>
+                        </ul>
+                        
+                        <p>
+                            If \(\sigma(x,x) = 0\) then the random variable is constant.
+                        </p>
+                        
+                        <p>
+                            If a vector of random variables is transformed by a linear transform \(A\), then the covariance is also transformed as \(\Sigma(Ax) = A \Sigma(x) A^T\)
+                        </p>
+                        
+                        <h2>Entropy</h2>
+                        <p>
+                            Measures information content
+                        </p>
+                        
+                        <div class="math-block">
+                            \[H(X) = E[ -\log_{2} p(X)]\]
+                            <span class="equation-number">(21)</span>
+                        </div>
+                        
+                        <div class="math-block">
+                            \[= -\sum_{x} p(x) \log_{2} p(x)\]
+                            <span class="equation-number">(22)</span>
+                        </div>
+                        
+                        <p>
+                            This can be very useful for estimating the gain of information when our Rami takes a specific action. Usually, we seek to minimize the entropy to increase the gain of information.
+                        </p>
+                        
+                        <h2>Bayes Filter</h2>
+                        <div class="definition">
+                            <strong>Complete state:</strong> \(x_t\) is a complete state if it encompasses the necessary information about the past states in order to predict future states. Therefore, \(x_t\) will be independent from past events like past measurements \(Z_{0:t-1}\), actions \(u_{0:t-1}\), and previous states \(x_{0:t-1}\)
+                        </div>
+                        
+                        <div class="definition">
+                            <strong>Belief:</strong>
+                            \[bel(x_t) = p(x_t \mid z_{1:t}, u_{1:t})\]
+                        </div>
+                        
+                        <div class="note">
+                            <p>
+                                The Bayes filter is the foundation for many robotics algorithms including Kalman filters, particle filters, and more. We'll explore these in future tutorials.
+                            </p>
+                        </div>
+                        
+                        <div class="sources">
+                            <h2>Sources</h2>
+                            <ul>
+                                <li>Probabilistic Robotics: <a href="https://mitpress.mit.edu/books/probabilistic-robotics" target="_blank">https://mitpress.mit.edu/books/probabilistic-robotics</a></li>
+                                <!-- <li><a href="http://bibing.us.es/proyectos/abreproy/70437/fichero/4_Capitulo2.pdf" target="_blank">http://bibing.us.es/proyectos/abreproy/70437/fichero/4_Capitulo2.pdf</a></li> -->
+                                <li>ENAE788K UMD class: Dr. Robert Sanner</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="back-to-tutorials mt-5">
+                        <a href="../../tutorials.html" class="btn btn-outline-primary"><i class="fa fa-arrow-left"></i> Back to Tutorials</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Start footer Area -->
+    <footer class="footer-area section-gap">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <p class="footer-text">
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 col-sm-6 social-widget">
+                    <div class="single-footer-widget">
+                        <h4>Follow Me</h4>
+                        <p>Let us be social</p>
+                        <div class="footer-social d-flex align-items-center">
+                          <a title="Google Scholar" href="https://scholar.google.com/citations?user=dYXPw9wAAAAJ&hl=en" style="padding-top: 8px" class="ai"><i class="ai ai-google-scholar"></i></a>&nbsp;
+                          <a title="Github" href="http://github.com/saimouli/" class="github"><i class="fa fa-github"></i></a>&nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- End footer Area -->    
+
+    <script src="../../js/vendor/jquery-2.2.4.min.js"></script>
+    <script src="../../js/popper.min.js"></script>
+    <script src="../../js/vendor/bootstrap.min.js"></script>            
+    <script src="../../js/easing.min.js"></script>            
+    <script src="../../js/hoverIntent.js"></script>
+    <script src="../../js/superfish.min.js"></script>    
+    <script src="../../js/jquery.ajaxchimp.min.js"></script>
+    <script src="../../js/jquery.magnific-popup.min.js"></script>    
+    <script src="../../js/jquery.tabs.min.js"></script>                        
+    <script src="../../js/jquery.nice-select.min.js"></script>    
+    <script src="../../js/isotope.pkgd.min.js"></script>            
+    <script src="../../js/waypoints.min.js"></script>
+    <script src="../../js/jquery.counterup.min.js"></script>
+    <script src="../../js/simple-skillbar.js"></script>                            
+    <script src="../../js/owl.carousel.min.js"></script>                            
+    <script src="../../js/mail-script.js"></script>    
+    <script src="../../js/main.js"></script>    
+</body>
+</html>
