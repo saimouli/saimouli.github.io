@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iterative Closest Point (ICP) - SVD Derivation</title>
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+          },
+          chtml: {
+            scale: 1.3  // Larger math font
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            font-size: 20px;
+            line-height: 1.8;
+            margin: 0 auto;
+            max-width: 850px;
+            padding: 30px;
+            color: #100f0f;
+            background-color: #fbfbfb;
+        }
+        h1, h2 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #0a0a0a;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            padding-bottom: 0.3em;
+        }
+        h1 {
+            font-size: 2.6em;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        h2 {
+            font-size: 2em;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        p {
+            margin-top: 0;
+            margin-bottom: 1.4em;
+        }
+        ul {
+            margin-top: 0.5em;
+            margin-bottom: 1.5em;
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 0.6em;
+        }
+        .MathJax_Display, mjx-display {
+            margin-top: 1.5em !important;
+            margin-bottom: 1.5em !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0.5em 0;
+        }
+        strong, b {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<h1>Iterative Closest Point (ICP) - SVD Derivation</h1>
+
+<h2>Motivation and Use of ICP in Robotics</h2>
+<p>The Iterative Closest Point (ICP) algorithm is a cornerstone in 3D data alignment, crucial for robotics, SLAM (Simultaneous Localization and Mapping), and 3D reconstruction. The goal is to align two sets of 3D points (usually captured from LIDAR, stereo cameras, or depth sensors) by estimating a rigid transformation (rotation and translation).</p>
+<p>ICP is used extensively in:</p>
+<ul>
+    <li><strong>Mapping:</strong> Aligning point clouds from successive frames to build a global map.</li>
+    <li><strong>Localization:</strong> Matching current sensor readings to a pre-built map to estimate the robot's pose.</li>
+    <li><strong>Loop closure detection:</strong> Recognizing revisited places by aligning new scans to older ones.</li>
+    <li><strong>Registration:</strong> Aligning 3D scans in CAD or medical imaging.</li>
+</ul>
+<p>The beauty of ICP is that it does not require camera intrinsics or explicit correspondences — just raw 3D data and an initial guess (or not). The most computationally elegant step is solving for the best rigid transform using SVD.</p>
+<h2>Problem Setup</h2>
+<p>Given two sets of corresponding 3D points:</p>
+\[
+\mathcal{P} = \{ \mathbf{p}_1, \mathbf{p}_2, \dots, \mathbf{p}_n \}, \quad \mathcal{P}' = \{ \mathbf{p}'_1, \mathbf{p}'_2, \dots, \mathbf{p}'_n \}
+\]
+<p>We seek a rigid transform $(\mathbf{R}, \mathbf{t})$ such that:</p>
+\[
+\mathbf{p}'_i = \mathbf{R} \mathbf{p}_i + \mathbf{t}
+\]
+<p>Note: No camera intrinsics are required; only 3D correspondences. Applicable to general SLAM setups.</p>
+<h2>Objective Function</h2>
+<p>We formulate the problem as minimizing the least-squares error:</p>
+\[
+\min_{\mathbf{R}, \mathbf{t}} \frac{1}{2} \sum_{i=1}^{n} \| \mathbf{p}'_i - (\mathbf{R} \mathbf{p}_i + \mathbf{t}) \|^2
+\]
+<h2>Centroid Subtraction</h2>
+<p>Let:</p>
+\[
+\bar{\mathbf{p}} = \frac{1}{n} \sum_{i=1}^n \mathbf{p}_i, \quad \bar{\mathbf{p}}' = \frac{1}{n} \sum_{i=1}^n \mathbf{p}'_i
+\]
+<p>Define centered points:</p>
+\[
+\mathbf{q}_i = \mathbf{p}_i - \bar{\mathbf{p}}, \quad \mathbf{q}'_i = \mathbf{p}'_i - \bar{\mathbf{p}}'
+\]
+<p>Substitute into the cost function:</p>
+\[
+\min_{\mathbf{R}, \mathbf{t}} \frac{1}{2} \sum_{i=1}^{n} \| \mathbf{q}'_i - \mathbf{R} \mathbf{q}_i + (\bar{\mathbf{p}}' - \mathbf{R} \bar{\mathbf{p}} - \mathbf{t}) \|^2
+\]
+<p>Set:</p>
+\[
+\mathbf{t} = \bar{\mathbf{p}}' - \mathbf{R} \bar{\mathbf{p}}
+\]
+<p>Then the cost reduces to:</p>
+\[
+\min_{\mathbf{R}} \frac{1}{2} \sum_{i=1}^{n} \| \mathbf{q}'_i - \mathbf{R} \mathbf{q}_i \|^2
+\]
+<h2>Optimal Rotation via SVD</h2>
+<p>Given:</p>
+\[
+\min_{\mathbf{R}} \frac{1}{2} \sum_{i=1}^{n} \| \mathbf{q}'_i - \mathbf{R} \mathbf{q}_i \|^2
+\]
+<p>we expand using the identity:</p>
+\[
+\| \mathbf{a} - \mathbf{b} \|^2 = \| \mathbf{a} \|^2 + \| \mathbf{b} \|^2 - 2 \mathbf{a}^T \mathbf{b}
+\]
+<p>So the cost becomes:</p>
+\[
+\frac{1}{2} \sum_{i=1}^{n} \left( \| \mathbf{q}'_i \|^2 + \| \mathbf{R} \mathbf{q}_i \|^2 - 2 \mathbf{q}'_i{}^T \mathbf{R} \mathbf{q}_i \right)
+\]
+<p><strong>Note:</strong> Since $\mathbf{R}$ is a rotation matrix, it is orthogonal: $\mathbf{R}^T \mathbf{R} = \mathbf{I}$. Therefore:</p>
+\[
+\| \mathbf{R} \mathbf{q}_i \|^2 = \mathbf{q}_i^T \mathbf{R}^T \mathbf{R} \mathbf{q}_i = \| \mathbf{q}_i \|^2
+\]
+<p>Thus, the terms $\| \mathbf{q}'_i \|^2$ and $\| \mathbf{q}_i \|^2$ are constant with respect to $\mathbf{R}$, so the optimization reduces to:</p>
+\[
+\max_{\mathbf{R}} \sum_{i=1}^{n} \mathbf{q}'_i{}^T \mathbf{R} \mathbf{q}_i
+\]
+<h2>Why the Trace?</h2>
+<p>We use the cyclic property of the trace operator:</p>
+\[
+\mathrm{tr}(\mathbf{A} \mathbf{B}) = \mathrm{tr}(\mathbf{B} \mathbf{A})
+\]
+<p>and the identity:</p>
+\[
+\mathbf{a}^T \mathbf{M} \mathbf{b} = \mathrm{tr}(\mathbf{M} \mathbf{b} \mathbf{a}^T)
+\]
+<p>So:</p>
+\[
+\sum_{i=1}^{n} \mathbf{q}'_i{}^T \mathbf{R} \mathbf{q}_i = \sum_{i=1}^{n} \mathrm{tr}(\mathbf{q}'_i{}^T \mathbf{R} \mathbf{q}_i) = \mathrm{tr} \left( \mathbf{R} \sum_{i=1}^{n} \mathbf{q}_i \mathbf{q}'_i{}^T \right)
+\]
+<p>Let:</p>
+\[
+\mathbf{W} = \sum_{i=1}^{n} \mathbf{q}_i \mathbf{q}'_i{}^T
+\]
+<p>Then the problem becomes:</p>
+\[
+\max_{\mathbf{R} \in SO(3)} \mathrm{tr}(\mathbf{R} \mathbf{W})
+\]
+<h2>Why SVD?</h2>
+<p>Perform singular value decomposition (SVD) on $\mathbf{W}$:</p>
+\[
+\mathbf{W} = \mathbf{U} \Sigma \mathbf{V}^T
+\]
+<p>Let:</p>
+\[
+\mathbf{R} = \mathbf{V} \mathbf{U}^T
+\]
+<p>Then $\mathbf{R}$ is orthogonal because $\mathbf{U}, \mathbf{V}$ are orthogonal (from the properties of SVD):</p>
+\[
+\mathbf{R}^T \mathbf{R} = (\mathbf{V} \mathbf{U}^T)^T (\mathbf{V} \mathbf{U}^T) = \mathbf{U} \mathbf{V}^T \mathbf{V} \mathbf{U}^T = \mathbf{U} \mathbf{I} \mathbf{U}^T = \mathbf{I}
+\]
+<h2>Why $\det(\mathbf{R}) = +1$?</h2>
+<p>We want a proper rotation (element of the special orthogonal group $SO(3)$):</p>
+\[
+SO(3) = \{ \mathbf{R} \in \mathbb{R}^{3 \times 3} \mid \mathbf{R}^T \mathbf{R} = \mathbf{I},\ \det(\mathbf{R}) = +1 \}
+\]
+<p>Reflections (which have $\det(\mathbf{R}) = -1$) do not preserve orientation or chirality of the coordinate system. In rigid body motion (e.g., robotics, SLAM), we only want rotations that preserve handedness.</p>
+<p><strong>Fixing $\det(\mathbf{R}) = -1$:</strong> If the computed $\mathbf{R} = \mathbf{V} \mathbf{U}^T$ has determinant $-1$, negate the last column of $\mathbf{V}$ (or $\mathbf{U}$) and recompute:</p>
+\[
+\tilde{\mathbf{V}} = [\mathbf{v}_1, \mathbf{v}_2, -\mathbf{v}_3], \quad \Rightarrow \mathbf{R} = \tilde{\mathbf{V}} \mathbf{U}^T
+\]
+<h2>Conclusion</h2>
+<p>We obtain the optimal rotation:</p>
+\[
+\mathbf{R}^* = \mathbf{V} \mathbf{U}^T \quad \text{with} \quad \det(\mathbf{R}) = +1
+\]
+<p>This solution maximizes the alignment between centered point sets using SVD of their cross-covariance matrix.</p>
+<h1>Summary of Key Points</h1>
+<ul>
+    <li>ICP estimates rigid transform $(\mathbf{R}, \mathbf{t})$ that minimizes point-to-point distance.</li>
+    <li>Centroid subtraction simplifies the translation estimation.</li>
+    <li>Optimal rotation is obtained by maximizing $\mathrm{tr}(\mathbf{R} \mathbf{W})$.</li>
+    <li>The optimal rotation $\mathbf{R}$ is derived from the SVD of cross-covariance matrix $\mathbf{W} = \sum \mathbf{q}_i \mathbf{q}'_i{}^T$.</li>
+    <li>Ensure $\det(\mathbf{R}) = +1$ to preserve chirality (handedness).</li>
+</ul>
+</body>
+</html>
