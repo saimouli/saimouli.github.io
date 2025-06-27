@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P3P Derivation</title>
+
+  <!-- MathJax configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      chtml: { scale: 1.2 }
+    };
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
+  <style>
+    body {
+      font-family: Georgia, serif;
+      font-size: 20px;
+      line-height: 1.8;
+      margin: 0 auto;
+      max-width: 850px;
+      padding: 30px;
+      color: #100f0f;
+      background-color: #ffffff;
+    }
+    h1, h2 {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #0a0a0a;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    h1 { font-size: 2.6em; border-bottom-width: 2px; }
+    h2 { font-size: 2em; }
+    p, ul { margin-bottom: 1.4em; }
+    ul { padding-left: 25px; }
+    pre {
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 1em 1.5em;
+      overflow-x: auto;
+    }
+    code {
+      font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+      font-size: 0.95em;
+    }
+    .MathJax_Display {
+      margin: 1.5em 0 !important;
+      padding: 0.5em 0;
+      overflow-x: auto;
+    }
+    figure img {
+    display: inline-block;        /* treat image like text for centering */
+    max-width: 100%;              /* responsive sizing */
+    height: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Why P3P Matters in a Robotics PnP Pipeline</h1>
+
+  <p>
+    <strong>Problem context.</strong>
+    On a mobile robot (UAV, rover, AR headset, …) you often know the 3-D world coordinates of a few landmarks
+    \(A,B,C,\dots\) from a prior map.  When the on-board monocular camera sees those landmarks again as
+    2-D image points \(\mathbf a,\mathbf b,\mathbf c,\dots\), the goal is to recover the camera pose
+    \((\mathbf R,\mathbf t)\) that aligns the map with the live view—this is the classic
+    <strong>PnP (Perspective-<em>n</em> Point)</strong> problem.
+  </p>
+
+  <p>
+    In RANSAC-style pipelines you repeatedly sample the smallest number of correspondences needed to determine a
+    candidate pose, test it against all features, and keep the best.  Once the intrinsics \(\mathbf K\) are known,
+    you only need <strong>3 points</strong> to solve PnP.  That minimal subproblem is called
+    <strong>P3P</strong>, and having a fast, robust solver for it is key to real-time visual SLAM.
+  </p>
+
+    <figure>
+    <img src="../../img/tutorials/pnp/p3p_img.png" alt="P3P geometry: camera center O, world points A B C, bearing vectors a b c" />
+    <figcaption>P3P problem diagram: camera center <em>O</em> sees world points <em>A, B, C</em> along bearing vectors <em>a, b, c</em>.</figcaption>
+  </figure>
+
+
+  <h2>Problem Setup</h2>
+  <p>
+    We have a camera center \(O\) and three known 3-D landmarks \(A,B,C\).  The camera measures unit bearing
+    vectors \(\mathbf a,\mathbf b,\mathbf c\) pointing toward \(A,B,C\).  From these we compute the
+    inter-vector angles
+  </p>
+  \[
+    \gamma = \angle(\mathbf a,\mathbf b),\quad
+    \alpha = \angle(\mathbf b,\mathbf c),\quad
+    \beta  = \angle(\mathbf a,\mathbf c).
+  \]
+  <p>
+    These angles come directly from the image; what remains unknown are the three distances
+    \(OA, OB, OC\).
+  </p>
+
+  <h2>Law of Cosines</h2>
+  <p>In triangles \(OAB\), \(OBC\), and \(OAC\), the Law of Cosines gives:</p>
+  \[
+    OA^2 + OB^2 - 2\,OA\,OB\cos\gamma = AB^2,
+  \]
+  \[
+    OB^2 + OC^2 - 2\,OB\,OC\cos\alpha = BC^2,
+  \]
+  \[
+    OA^2 + OC^2 - 2\,OA\,OC\cos\beta  = AC^2.
+  \]
+
+  <h2>Normalized Distances &amp; Ratios</h2>
+  <p>Define normalized distances</p>
+  \[
+    x = \frac{OA}{OC},\quad
+    y = \frac{OB}{OC},
+  \]
+  <p>and squared‐length ratios</p>
+  \[
+    v = \frac{AB^2}{OC^2},\quad
+    u = \frac{BC^2}{AB^2},\quad
+    w = \frac{AC^2}{AB^2}.
+  \]
+  <p>
+    Since \(u\,v = BC^2/OC^2\) and \(w\,v = AC^2/OC^2\), divide the above three cosine laws by \(OC^2\) to obtain
+  </p>
+  \[
+    x^2 + y^2 - 2\,x\,y\cos\gamma = v,  \tag{1}
+  \]
+  \[
+    y^2 + 1   - 2\,y\cos\alpha = u\,v, \tag{2}
+  \]
+  \[
+    x^2 + 1   - 2\,x\cos\beta  = w\,v. \tag{3}
+  \]
+
+  <h2>Eliminate \(v\)</h2>
+  <p>
+    From \((1)\) we get
+  </p>
+  \[
+    v = x^2 + y^2 - 2\,x\,y\cos\gamma.
+  \]
+  <p>Substitute into \((2)\) and \((3)\):</p>
+  \[
+    y^2 + 1 - 2y\cos\alpha
+    - u\bigl(x^2 + y^2 - 2xy\cos\gamma\bigr)
+    = 0,
+  \]
+  \[
+    x^2 + 1 - 2x\cos\beta
+    - w\bigl(x^2 + y^2 - 2xy\cos\gamma\bigr)
+    = 0.
+  \]
+  <p>Collecting terms yields the two‐variable system:</p>
+  \[
+    (1-u)\,y^2 + 2u\,xy\cos\gamma -2y\cos\alpha -u\,x^2 +1 = 0,
+  \]
+  \[
+    (1-w)\,x^2 + 2w\,xy\cos\gamma -2x\cos\beta -w\,y^2 +1 = 0.
+  \]
+
+  <h2>Solve for \(y\)</h2>
+  <p>
+    The first equation is quadratic in \(y\):
+  </p>
+  \[
+    (1-u)\,y^2 + \bigl(2u\,x\cos\gamma - 2\cos\alpha\bigr)\,y
+    + (1 - u\,x^2) = 0.
+  \]
+  <p>By the quadratic formula:</p>
+  \[
+    y = \frac{2\cos\alpha \pm \sqrt{\,4\cos^2\alpha
+               -4(1-u)(1-u x^2)\,}}{2(1-u)}
+      = \cos\alpha \pm \sqrt{\,u\,v - \sin^2\alpha\,},
+  \]
+  <p>choosing the sign that yields \(y>0\).</p>
+
+  <h2>Solve for \(x\)</h2>
+  <p>An identical step on the second equation gives:</p>
+  \[
+    x = \cos\beta \pm \sqrt{\,u\,v - \sin^2\beta\,},
+  \]
+  <p>again selecting the physically valid root.  Finally, recover
+  \(v\) from \((1)\), then
+  \(\;OC=\sqrt{AB^2/v},\quad OA=x\cdot OC,\quad OB=y\cdot OC.\)</p>
+
+</body>
+</html>
