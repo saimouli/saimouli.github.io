@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Post-Training</title>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      chtml: {
+        scale: 1.3
+      }
+    };
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      font-size: 20px;
+      line-height: 1.8;
+      margin: 0 auto;
+      max-width: 850px;
+      padding: 30px;
+      color: #100f0f;
+      background-color: #fbfbfb;
+    }
+    h1, h2, h3 {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #0a0a0a;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      padding-bottom: 0.3em;
+    }
+    h1 {
+      font-size: 2.6em;
+      border-bottom: 2px solid #ecf0f1;
+    }
+    h2 {
+      font-size: 2em;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    h3 {
+      font-size: 1.6em;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 1.4em;
+    }
+    ul, ol {
+      margin-top: 0.5em;
+      margin-bottom: 1.5em;
+      padding-left: 25px;
+    }
+    li {
+      margin-bottom: 0.6em;
+    }
+    .MathJax_Display, mjx-display {
+      margin-top: 1.5em !important;
+      margin-bottom: 1.5em !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0.5em 0;
+    }
+    strong, b {
+      font-weight: bold;
+    }
+    hr {
+      margin: 2em 0;
+      border: 0;
+      border-top: 1px solid #ddd;
+    }
+    figure {
+      text-align: center;
+      margin: 2em 0;
+    }
+    figcaption {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 0.4em;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+
+<h1>LLM Post-Training</h1>
+
+<h2>Overview</h2>
+<p>Large Language Models (LLMs) are typically trained in two broad stages: <strong>pre-training</strong> and <strong>post-training</strong>.</p>
+
+<p><strong>Pre-training</strong> is where the model learns general language understanding from massive amounts of raw, unlabeled text data (Wikipedia, books, GitHub, etc. — often exceeding 2 trillion tokens). The goal is simple: predict the next token given the previous ones. This is an unsupervised learning stage.</p>
+
+$$
+\min_{\pi} -\log \pi(\text{I}) 
+- \log \pi(\text{like} \mid \text{I})
+- \log \pi(\text{cats} \mid \text{I like})
+$$
+
+<p>Here, the model minimizes the negative log-likelihood of each token conditioned on prior tokens — effectively learning grammar, semantics, and world knowledge.</p>
+
+<p><strong>Post-training</strong>, on the other hand, refines this general model for specific behaviors, tasks, or human-aligned objectives. It uses curated datasets and sometimes human feedback to make the model more helpful, safe, and controllable.</p>
+
+<hr>
+
+<h2>Post-training Method 1: Supervised Fine-Tuning (SFT)</h2>
+
+<p>Supervised Fine-Tuning (SFT) is the first and simplest stage of post-training. The model is trained on a curated set of prompt–response pairs (typically 1K–1B tokens) to follow instructions and generate coherent, context-appropriate answers.</p>
+
+$$
+\min_{\pi} -\log \pi(\text{Response} \mid \text{Prompt})
+$$
+
+<p>Only the response tokens are used for loss computation — the prompt acts as context.</p>
+
+<p>SFT can be performed via:</p>
+<ul>
+  <li><strong>Full fine-tuning:</strong> updating all parameters of the model.</li>
+  <li><strong>Parameter-efficient fine-tuning (PEFT):</strong> updating only a small subset (e.g., LoRA, adapters).</li>
+</ul>
+
+<p>Let $h$ be the layer output, $x$ the input, and $W$ the layer’s weight matrix.  
+In full fine-tuning, we update the weights as:</p>
+
+$$
+h = (W + \Delta W)x
+$$
+
+<p>where $\Delta W$ is learned through gradient descent.</p>
+
+<p>In parameter-efficient fine-tuning (e.g., LoRA), we decompose $\Delta W$ into low-rank matrices $A$ and $B$:</p>
+
+$$
+h = (W + BA)x, \quad B \in \mathbb{R}^{d \times r}, \, A \in \mathbb{R}^{r \times d}.
+$$
+
+<p>This reduces the number of trainable parameters from $\mathcal{O}(d^2)$ to $\mathcal{O}(2dr)$, enabling efficient training on smaller hardware.</p>
+
+<figure>
+  <img src="../../img/tutorials/LLM/llm_finetune.png" alt="Full fine-tuning vs. parameter-efficient fine-tuning (LoRA)">
+  <figcaption>Full fine-tuning vs. parameter-efficient fine-tuning (e.g., LoRA).</figcaption>
+</figure>
+
+<hr>
+
+<h2>Post-training Method 2: Direct Preference Optimization (DPO)</h2>
+
+<p>Direct Preference Optimization (DPO) simplifies alignment by learning directly from human preference pairs — without explicitly training a reward model or performing reinforcement learning.</p>
+
+<p>Given a prompt $x$, a preferred (positive) response $y_{\text{pos}}$, and a dispreferred (negative) response $y_{\text{neg}}$, DPO optimizes the following contrastive objective:</p>
+
+$$
+\mathcal{L}_{\text{DPO}} 
+= 
+-\log 
+\sigma
+\Big(
+\beta
+\big(
+\log 
+\frac{
+    \pi_{\theta}(y_{\text{pos}} \mid x)
+}{
+    \pi_{\text{ref}}(y_{\text{pos}} \mid x)
+}
+-
+\log 
+\frac{
+    \pi_{\theta}(y_{\text{neg}} \mid x)
+}{
+    \pi_{\text{ref}}(y_{\text{neg}} \mid x)
+}
+\big)
+\Big)
+$$
+
+<p>Here:</p>
+<ul>
+  <li>$\sigma$ is the sigmoid function.</li>
+  <li>$\beta$ controls how strongly the log-ratio difference influences learning.</li>
+  <li>$\pi_{\theta}$ is the fine-tuned model, and $\pi_{\text{ref}}$ is the frozen reference model (often the SFT checkpoint).</li>
+</ul>
+
+<p>Intuitively, DPO increases the likelihood of preferred responses relative to dispreferred ones while keeping the model close to the reference.  
+It’s simple, stable, and effective for shaping behaviors like helpfulness, harmlessness, or multilingual capability — especially when you have human preference data.</p>
+
+<hr>
+
+<h2>Post-training Method 3: Online Reinforcement Learning (RLHF)</h2>
+
+<p>The third and most advanced post-training stage is <strong>online reinforcement learning</strong>, often referred to as <strong>Reinforcement Learning from Human Feedback (RLHF)</strong>. Here, the model interacts with a reward signal to learn optimal responses.</p>
+
+<p>This process typically involves 1K–10M prompts, depending on the task and resources.</p>
+
+<h3>Reward Models and Verifiable Rewards</h3>
+
+<p>Given a batch of prompts, the model generates one or more candidate responses. A reward function then scores each response.</p>
+
+<ul>
+  <li><strong>Learned reward model:</strong> trained on human preference data (humans compare pairs of responses and indicate which is better). The reward model generalizes these preferences to unseen prompts.</li>
+  <li><strong>Verifiable rewards:</strong> automatically computed based on objective criteria — e.g., unit tests for code, accuracy for math, or factual consistency metrics for QA. These remove human subjectivity and are ideal for correctness-based domains.</li>
+</ul>
+
+<h3>Policy Optimization Algorithms</h3>
+
+<p>Two main policy optimization methods are used in RLHF for LLMs:</p>
+
+<ol>
+  <li><strong>PPO (Proximal Policy Optimization)</strong></li>
+  <li><strong>GRPO (Group Relative Policy Optimization)</strong></li>
+</ol>
+
+<h3>PPO (Proximal Policy Optimization)</h3>
+
+<p>Given a query $q$, a policy model (LLM) generates a response $o$. Three models interact during PPO:</p>
+
+<ul>
+  <li><strong>Reference model:</strong> a frozen copy of the base model; used to compute a KL penalty to prevent the fine-tuned model from diverging too far.</li>
+  <li><strong>Reward model:</strong> produces scalar rewards based on human or verifiable feedback.</li>
+  <li><strong>Value (critic) model:</strong> estimates token-level expected rewards to distribute credit across the sequence.</li>
+</ul>
+
+<p>The advantage $A_t$ is computed using <strong>Generalized Advantage Estimation (GAE)</strong> to quantify how much better each token’s action was compared to expectation.</p>
+
+<figure>
+  <img src="../../img/tutorials/LLM/ppo_reward.png" alt="PPO: Reinforcement fine-tuning with reward and KL regularization">
+  <figcaption>PPO: Reinforcement fine-tuning with reward and KL regularization.</figcaption>
+</figure>
+
+<p>The PPO objective is:</p>
+
+$$
+\mathcal{J}_{\text{PPO}}(\theta) = 
+\mathbb{E}_{q \sim P(Q),\, o \sim \pi_{\theta_{\text{old}}}(O \mid q)} \Bigg[
+\frac{1}{|o|} 
+\sum_{t=1}^{|o|}
+\min\!\Bigg(
+\frac{
+    \pi_{\theta}(o_t \mid q, o_{<t})
+}{
+    \pi_{\theta_{\text{old}}}(o_t \mid q, o_{<t})
+} A_t, 
+\text{clip}\!\Bigg(
+\frac{
+    \pi_{\theta}(o_t \mid q, o_{<t})
+}{
+    \pi_{\theta_{\text{old}}}(o_t \mid q, o_{<t})
+}, 1 - \epsilon, 1 + \epsilon
+\Bigg) A_t
+\Bigg)
+\Bigg]
+$$
+
+<p>Maximizing this objective encourages responses with higher rewards while maintaining stability through clipping and KL regularization.</p>
+
+<h3>GRPO (Group Relative Policy Optimization)</h3>
+
+<p>GRPO modifies PPO by changing how advantages are calculated.  
+Instead of using a value model, it generates multiple responses $o_1, \ldots, o_G$ for each query and computes group-level relative rewards. The advantage for each response is derived by comparing its reward to others in the group.</p>
+
+<p>This removes the need for a separate value model, resulting in:</p>
+<ul>
+  <li><strong>Memory efficiency:</strong> no critic model required.</li>
+  <li><strong>Faster training:</strong> fewer model evaluations per step.</li>
+  <li><strong>Simpler pipeline:</strong> advantage estimated via group normalization.</li>
+</ul>
+
+<figure>
+  <img src="../../img/tutorials/LLM/grpo_llm.png" alt="GRPO: Reinforcement fine-tuning with reward">
+  <figcaption>GRPO: Reinforcement fine-tuning with reward.</figcaption>
+</figure>
+
+<p>However, GRPO relies on having multiple responses per prompt, making it less suitable when only one response can be sampled.</p>
+
+<h3>When to Use PPO vs. GRPO</h3>
+
+<ul>
+  <li><strong>PPO:</strong> Best when fine-grained stability and accurate token-level credit assignment are needed — e.g., safety alignment, fairness tuning, or precise human preference optimization.</li>
+  <li><strong>GRPO:</strong> Best when efficiency is key and multiple responses can be sampled per prompt — e.g., large-scale online RL for conversational LLMs.</li>
+</ul>
+
+<hr>
+
+<h2>Summary</h2>
+
+<p>Post-training is where general-purpose LLMs become usable assistants.</p>
+
+<ul>
+  <li><strong>SFT</strong> teaches them to follow instructions.</li>
+  <li><strong>DPO</strong> aligns them with human preferences efficiently.</li>
+  <li><strong>RLHF (PPO/GRPO)</strong> fine-tunes them to optimize reward functions directly.</li>
+</ul>
+
+<p>Together, these methods bridge the gap between raw pre-trained models and helpful, safe, and aligned AI systems.</p>
+
+</body>
+</html>
