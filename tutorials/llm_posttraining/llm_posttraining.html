@@ -243,15 +243,15 @@ $$
 \sum_{t=1}^{|o|}
 \min\!\Bigg(
 \frac{
-    \pi_{\theta}(o_t \mid q, o_{<t})
+    \pi_{\theta}(o_t \mid q, o_{\lt t})
 }{
-    \pi_{\theta_{\text{old}}}(o_t \mid q, o_{<t})
+    \pi_{\theta_{\text{old}}}(o_t \mid q, o_{\lt t})
 } A_t, 
 \text{clip}\!\Bigg(
 \frac{
-    \pi_{\theta}(o_t \mid q, o_{<t})
+    \pi_{\theta}(o_t \mid q, o_{\lt t})
 }{
-    \pi_{\theta_{\text{old}}}(o_t \mid q, o_{<t})
+    \pi_{\theta_{\text{old}}}(o_t \mid q, o_{\lt t})
 }, 1 - \epsilon, 1 + \epsilon
 \Bigg) A_t
 \Bigg)
