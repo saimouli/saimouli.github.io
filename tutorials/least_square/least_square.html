@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Least Squares Methods</title>
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            packages: {'[+]': ['ams']},
+            macros: { bm: "\\boldsymbol" }
+          },
+          chtml: {
+            scale: 1.2
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            font-size: 20px;
+            line-height: 1.8;
+            margin: 0 auto;
+            max-width: 850px;
+            padding: 30px;
+            color: #100f0f;
+            background-color: #fbfbfb;
+        }
+        h1, h2, h3 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #0a0a0a;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            padding-bottom: 0.3em;
+        }
+        h1 {
+            font-size: 2.8em;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        h2 {
+            font-size: 2.2em;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        h3 {
+            font-size: 1.8em;
+        }
+        p, ul {
+            margin-top: 0;
+            margin-bottom: 1.4em;
+        }
+        ul {
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 0.6em;
+        }
+        .MathJax_Display, mjx-display {
+            margin-top: 1.5em !important;
+            margin-bottom: 1.5em !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0.5em 0;
+        }
+        strong, b {
+            font-weight: bold;
+        }
+        hr {
+            margin: 2em 0;
+            border: 0;
+            border-top: 1px solid #ddd;
+        }
+        .boxed-eq {
+            border: 1px solid #ccc;
+            padding: 1em;
+            border-radius: 5px;
+            margin: 1.5em 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Least-Squares</h1>
+
+<p>The <strong>least squares regression problem</strong> involves solving for unknown parameters $\mathbf{x}$ in a model written as a linear system:
+$$
+A \mathbf{x} = \mathbf{b}
+$$
+where 
+$$
+A \in \mathbb{R}^{m \times n}, \quad \mathbf{b} \in \mathbb{R}^{m}.
+$$
+</p>
+
+<p>We wish to find $\mathbf{x}$ that minimizes the residual error $\|A \mathbf{x} - \mathbf{b}\|_2^2$.  
+This is a <strong>convex optimization problem</strong>, since the cost function is quadratic in $\mathbf{x}$.</p>
+
+$$
+\min_{\mathbf{x}} \|A\mathbf{x} - \mathbf{b}\|_2^2
+$$
+
+<hr>
+
+<h2>Basic Linear Case</h2>
+
+<p>If $A$ is <strong>square and invertible</strong>, then the solution is simply:
+$$
+\mathbf{x} = A^{-1} \mathbf{b}.
+$$
+This case corresponds to having the same number of equations and unknowns ($m = n$).</p>
+
+<h3>Overdetermined and Underdetermined Systems</h3>
+
+<p>If $A$ is <strong>not square</strong> (non-invertible), we may have:</p>
+<ul>
+    <li><strong>Overdetermined system:</strong> $m > n$, more equations than unknowns.</li>
+    <li><strong>Underdetermined system:</strong> $m < n$, more unknowns than equations.</li>
+</ul>
+
+<p>In both cases, the system may not have a unique solution. The least squares approach finds an approximate solution by minimizing $\|A\mathbf{x} - \mathbf{b}\|_2$.</p>
+
+<hr>
+
+<h2>Least Squares Derivation</h2>
+
+<p>We minimize:
+$$
+\|A\mathbf{x} - \mathbf{b}\|_2^2 = (A\mathbf{x} - \mathbf{b})^T (A\mathbf{x} - \mathbf{b}).
+$$
+Expanding gives:
+$$
+= \mathbf{x}^T A^T A \mathbf{x} - 2 \mathbf{b}^T A \mathbf{x} + \mathbf{b}^T \mathbf{b}.
+$$
+Setting the gradient to zero:
+$$
+\nabla_{\mathbf{x}} \|A\mathbf{x} - \mathbf{b}\|_2^2 = 2A^T(A\mathbf{x} - \mathbf{b}) = 0.
+$$
+This yields the <strong>normal equation:</strong>
+$$
+A^T A \mathbf{x} = A^T \mathbf{b}.
+$$
+If $A^T A$ is invertible, then
+$$
+\mathbf{x} = (A^T A)^{-1} A^T \mathbf{b}.
+$$
+</p>
+
+<p>The matrix $(A^T A)^{-1} A^T$ is known as the <strong>pseudoinverse</strong> of $A$ (denoted $A^+$).</p>
+
+<hr>
+
+<h2>The Moore–Penrose Pseudoinverse and SVD</h2>
+
+<p>For general (possibly non-square) matrices, we can define:
+$$
+A^+ = (A^T A)^{-1} A^T \quad \text{if } A^T A \text{ is invertible.}
+$$
+</p>
+
+<p>However, for large or rank-deficient matrices, this form may be unstable.  
+We instead compute the pseudoinverse using the <strong>Singular Value Decomposition (SVD)</strong>:
+$$
+A = U \Sigma V^T,
+$$
+where $U$ and $V$ are orthogonal matrices and $\Sigma$ is a diagonal matrix containing the singular values $\sigma_i \ge 0$.</p>
+
+<p>Then,
+$$
+A^+ = V \Sigma^+ U^T,
+$$
+where $\Sigma^+$ is obtained by taking the reciprocal of the nonzero singular values in $\Sigma$.</p>
+
+<p>The least squares solution becomes:
+$$
+\mathbf{x} = A^+ \mathbf{b} = V \Sigma^+ U^T \mathbf{b}.
+$$
+</p>
+
+<p>This approach is <strong>numerically stable</strong> and works even when $A$ is not full rank.</p>
+
+<hr>
+
+<h2>Minimum-Norm and Rank Considerations</h2>
+
+<p>The rank of $A$ equals the number of nonzero singular values.  
+If $A$ has rank $r$, we can approximate it using a rank-$r$ truncation of the SVD:
+$$
+A \approx U_r \Sigma_r V_r^T.
+$$
+</p>
+
+<p>In the underdetermined case ($m < n$), there are infinitely many solutions.  
+We usually choose the one with minimum norm:
+$$
+\min_{\mathbf{x}} \|\mathbf{x}\|_2 \quad \text{subject to } A\mathbf{x} = \mathbf{b}.
+$$
+This leads to:
+$$
+\mathbf{x} = A^T (A A^T)^{-1} \mathbf{b}.
+$$
+</p>
+
+<hr>
+
+<h2>Condition Numbers and Numerical Sensitivity</h2>
+
+<p>The <strong>condition number</strong> of a matrix $A$ is defined as:
+$$
+\kappa(A) = \frac{\sigma_{\max}(A)}{\sigma_{\min}(A)}.
+$$
+A high condition number means $A$ is nearly singular, making the system very sensitive to small perturbations in $\mathbf{b}$.</p>
+
+<p>If $\mathbf{b}$ has some noise $\delta \mathbf{b}$, then:
+$$
+A(\mathbf{x} + \delta \mathbf{x}) = \mathbf{b} + \delta \mathbf{b}.
+$$
+This results in
+$$
+\frac{\|\delta \mathbf{x}\|}{\|\mathbf{x}\|} \le \kappa(A) \frac{\|\delta \mathbf{b}\|}{\|\mathbf{b}\|}.
+$$
+Hence, reducing $\kappa(A)$ (e.g., via regularization) improves numerical stability.</p>
+
+<hr>
+
+<h2>Tikhonov (Ridge) Regularization</h2>
+
+<p>When $A^T A$ is ill-conditioned, we can stabilize the solution using <strong>Tikhonov regularization</strong> (also called ridge regression):
+$$
+\min_{\mathbf{x}} \|A\mathbf{x} - \mathbf{b}\|_2^2 + \alpha \|\mathbf{x}\|_2^2,
+$$
+where $\alpha > 0$ controls the trade-off between bias and variance.</p>
+
+<p>The closed-form solution is:
+$$
+\mathbf{x} = (A^T A + \alpha I)^{-1} A^T \mathbf{b}.
+$$
+</p>
+
+<p><strong>Remarks:</strong></p>
+<ul>
+    <li>Adding $\alpha I$ prevents division by very small singular values.</li>
+    <li>The parameter $\alpha$ introduces bias but reduces variance.</li>
+</ul>
+
+<hr>
+
+<h2>LASSO Regularization</h2>
+
+<p>Another common regularization is the <strong>LASSO</strong> (Least Absolute Shrinkage and Selection Operator):
+$$
+\min_{\mathbf{x}} \|A\mathbf{x} - \mathbf{b}\|_2^2 + \lambda \|\mathbf{x}\|_1.
+$$
+Here, the $\ell_1$ norm encourages sparsity in $\mathbf{x}$, leading to simpler models.</p>
+
+<hr>
+
+<h2>Constrained Least Squares</h2>
+
+<p>We can also impose linear constraints:
+$$
+\min_{\mathbf{x}} \|A\mathbf{x} - \mathbf{b}\|_2^2 \quad \text{subject to } C\mathbf{x} = \mathbf{d}.
+$$
+Rewriting in quadratic form:
+$$
+\min_{\mathbf{x}} \frac{1}{2} \mathbf{x}^T Q \mathbf{x} + \mathbf{c}^T \mathbf{x}, \quad \text{subject to } C\mathbf{x} = \mathbf{d},
+$$
+where $Q = 2A^T A$ and $\mathbf{c} = -2A^T \mathbf{b}$.</p>
+
+<p>Using Lagrange multipliers:
+$$
+\mathcal{L}(\mathbf{x}, \bm{\lambda}) = \frac{1}{2} \mathbf{x}^T Q \mathbf{x} + \mathbf{c}^T \mathbf{x} + \bm{\lambda}^T (C\mathbf{x} - \mathbf{d}).
+$$
+Setting derivatives to zero gives:
+$$
+\begin{bmatrix}
+Q & C^T \\
+C & 0
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{x} \\ \bm{\lambda}
+\end{bmatrix}
+=
+\begin{bmatrix}
+-\mathbf{c} \\ \mathbf{d}
+\end{bmatrix}.
+$$
+This linear system can be solved directly, often via SVD.</p>
+
+<hr>
+
+<h2>Quadratic Programming Form</h2>
+
+<p>In general, least squares and its constrained forms can be expressed as a <strong>quadratic program</strong>:
+$$
+\min_{\mathbf{x}} \frac{1}{2} \mathbf{x}^T Q \mathbf{x} + \mathbf{c}^T \mathbf{x} \quad \text{subject to } A\mathbf{x} \le \mathbf{b},
+$$
+where $Q$ is positive semi-definite.  
+Because the problem is convex, any local minimum is also a global minimum.</p>
+
+<hr>
+
+<h2>Summary of Linear Least Squares</h2>
+<ul>
+    <li>The least squares problem minimizes $\|A\mathbf{x} - \mathbf{b}\|_2$.</li>
+    <li>If $A$ is full rank: $\mathbf{x} = (A^T A)^{-1}A^T \mathbf{b}$.</li>
+    <li>If not, use SVD to compute $\mathbf{x} = V \Sigma^+ U^T \mathbf{b}$.</li>
+    <li>Regularization (Tikhonov / LASSO) stabilizes ill-conditioned problems.</li>
+    <li>Constrained least squares can be solved via Lagrange multipliers or QP solvers.</li>
+</ul>
+
+<hr>
+
+<h1>Nonlinear Least Squares</h1>
+
+<h2>1. The Gauss–Newton Method</h2>
+
+<p>We begin with a nonlinear least squares problem of the form:
+$$
+L(\bm{\theta}) = \frac{1}{2} \sum_{j=1}^{m} \| y_j - f(x_j; \bm{\theta}) \|^2
+= \frac{1}{2} \sum_{j=1}^{m} f_j(\bm{\theta})^2
+= \frac{1}{2} \| \bm{f}(\bm{\theta}) \|^2,
+$$
+where \( f_j(\bm{\theta}) = y_j - f(x_j; \bm{\theta}) \) are the residuals.</p>
+
+<h3>Gradient and Jacobian</h3>
+<p>The gradient of \(L\) is given by:
+$$
+\nabla_{\bm{\theta}} L = J^\top \bm{f},
+$$
+where \( J \) is the Jacobian matrix of residuals:
+$$
+J =
+\begin{bmatrix}
+\frac{\partial f_1}{\partial \theta_1} & \frac{\partial f_1}{\partial \theta_2} & \dots & \frac{\partial f_1}{\partial \theta_n} \\
+\frac{\partial f_2}{\partial \theta_1} & \frac{\partial f_2}{\partial \theta_2} & \dots & \frac{\partial f_2}{\partial \theta_n} \\
+\vdots & & \ddots & \vdots \\
+\frac{\partial f_m}{\partial \theta_1} & \frac{\partial f_m}{\partial \theta_2} & \dots & \frac{\partial f_m}{\partial \theta_n}
+\end{bmatrix}.
+$$
+</p>
+
+<p>The exact Hessian is:
+$$
+\nabla^2_{\bm{\theta}} L = J^\top J + \sum_{j=1}^m f_j H_j
+$$
+where $H_j = \nabla^2_{\bm{\theta}} f_j$ is the Hessian of the $j$-th residual function.</p>
+
+<p><strong>Gauss-Newton Approximation:</strong> Near a good fit, the residuals $f_j(\bm{\theta})$ are small, so the term $\sum_j f_j H_j$ is often negligible. Dropping it yields the Gauss-Newton Hessian approximation:
+$$
+H \approx J^\top J
+$$
+</p>
+
+<h3>Gauss–Newton Update Rule</h3>
+<p>Newton’s method gives the update:
+$$
+\bm{\theta}_{k+1} = \bm{\theta}_k - H^{-1} \nabla_{\bm{\theta}} L.
+$$
+Using the Gauss–Newton approximation for $H$ and the gradient $\nabla L = J^\top \bm{f}$, we get:
+$$
+(J_k^\top J_k) \, \Delta \bm{\theta}_k = - J_k^\top \bm{f}_k,
+$$
+where the update is $\bm{\theta}_{k+1} = \bm{\theta}_k + \Delta \bm{\theta}_k$.
+This means the Gauss–Newton method solves a <strong>linear least squares problem</strong> at each iteration:
+$$
+\min_{\Delta \bm{\theta}} \frac{1}{2} \| J_k \Delta \bm{\theta} + \bm{f}_k \|^2.
+$$
+</p>
+
+<h3>Intuition</h3>
+<p>The method reduces a nonlinear least squares problem to a sequence of linearized least squares problems by using the local Jacobian. This approach works well when the model is approximately linear near the solution.</p>
+
+<hr>
+
+<h2>2. The Levenberg–Marquardt Algorithm</h2>
+
+<h3>Limitations of Gauss–Newton</h3>
+<p>The Gauss–Newton method can be unstable if:</p>
+<ul>
+    <li>The residuals are large, making the Hessian approximation inaccurate.</li>
+    <li>The Jacobian $J$ is rank-deficient, making $J^\top J$ singular or ill-conditioned.</li>
+</ul>
+
+<h3>The Levenberg–Marquardt (LM) Idea</h3>
+<p>The LM algorithm improves robustness by combining the Gauss–Newton method with gradient descent. It does this by <strong>regularizing</strong> the Hessian approximation:
+$$
+H \approx J^\top J + \alpha I,
+$$
+where $\alpha > 0$ is a damping parameter. The update equation becomes:
+$$
+(J^\top J + \alpha I)\, \Delta \bm{\theta} = -J^\top \bm{f}.
+$$
+</p>
+<ul>
+    <li>When $\alpha \to 0$, LM behaves like Gauss–Newton (fast convergence near solution).</li>
+    <li>When $\alpha \to \infty$, LM behaves like gradient descent (more stable when far from solution).</li>
+</ul>
+
+<h3>Adaptive Damping</h3>
+<p>The parameter $\alpha$ is adjusted dynamically based on how well the linear model predicts the actual reduction in the cost function. This allows the algorithm to smoothly transition between fast Gauss-Newton steps and stable gradient-descent steps.</p>
+
+<hr>
+
+<h2>3. Conjugate Gradient Method (CG)</h2>
+
+<p>The Conjugate Gradient method is an iterative algorithm for solving large symmetric positive definite (SPD) linear systems of the form $A \bm{x} = \bm{b}$.</p>
+
+<p>In our context, this often corresponds to solving the Gauss-Newton step:
+$$
+(J^\top J) \Delta \bm{\theta} = -J^\top \bm{f}.
+$$
+CG is efficient for large or sparse systems because it avoids explicit matrix factorization and inversion, relying only on matrix-vector products.</p>
+
+<h3>Key Idea</h3>
+<p>Instead of descending along gradient directions, CG minimizes the quadratic function $\phi(\bm{x}) = \frac{1}{2} \bm{x}^\top A \bm{x} - \bm{b}^\top \bm{x}$ by moving along a sequence of A-orthogonal (or "conjugate") directions $\{ \bm{p}_k \}$, where $\bm{p}_i^\top A \bm{p}_j = 0$ for $i \ne j$. This guarantees convergence in at most $n$ steps for an $n \times n$ system (in exact arithmetic).</p>
+
+<p>In nonlinear least squares, CG is often used as an <em>inner solver</em> to compute the Gauss–Newton or Levenberg-Marquardt update step, especially when $J^\top J$ is too large to invert directly.</p>
+
+<hr>
+
+<h2>Summary of Nonlinear Methods</h2>
+<ul>
+    <li><strong>Gauss–Newton:</strong> Approximates the Hessian by $J^\top J$. Efficient when residuals are small and the problem is well-conditioned.</li>
+    <li><strong>Levenberg–Marquardt:</strong> Adds a damping term $\alpha I$ to improve numerical stability and robustness, blending Gauss-Newton with gradient descent.</li>
+    <li><strong>Conjugate Gradient:</strong> An efficient iterative solver for the linear system within each step of Gauss-Newton or LM, ideal for large-scale problems.</li>
+</ul>
+
+<p>These methods form the foundation of modern nonlinear least squares optimization, combining analytical insight with numerical stability.</p>
+
+</body>
+</html>
