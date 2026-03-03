@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG for Robotics: Chunking, Embeddings, and Retrieval</title>
+
+  <!-- MathJax configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      chtml: { scale: 1.2 }
+    };
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
+  <style>
+    body {
+      font-family: Georgia, serif;
+      font-size: 20px;
+      line-height: 1.8;
+      margin: 0 auto;
+      max-width: 850px;
+      padding: 30px;
+      color: #100f0f;
+      background-color: #ffffff;
+    }
+    h1, h2 {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #0a0a0a;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    h1 { font-size: 2.6em; border-bottom-width: 2px; }
+    h2 { font-size: 2em; }
+    p, ul { margin-bottom: 1.4em; }
+    ul { padding-left: 25px; }
+    pre {
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 1em 1.5em;
+      overflow-x: auto;
+      border: 1px solid #ecf0f1;
+    }
+    code {
+      font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+      font-size: 0.95em;
+    }
+    .MathJax_Display {
+      margin: 1.5em 0 !important;
+      padding: 0.5em 0;
+      overflow-x: auto;
+    }
+    figure img {
+      display: inline-block;
+      max-width: 100%;
+      height: auto;
+    }
+    .callout {
+      border-left: 4px solid #ecf0f1;
+      padding: 0.2em 1em;
+      margin: 1.2em 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>RAG for Robotics: Chunking, Embeddings, and Retrieval</h1>
+
+  <p>
+    <strong>Problem context.</strong>
+    Robotics students quickly run into a reality check with large language models (LLMs):
+    your robot may have <em>a lot</em> of knowledge (PDF manuals, maps, datasheets, mission logs),
+    but the LLM has a limited <strong>context window</strong>. If you try to paste an entire PDF into the prompt,
+    you’ll overflow the context window, pay more latency/cost, and still get answers that miss key details.
+  </p>
+
+  <p>
+    <strong>Retrieval-Augmented Generation (RAG)</strong> is the standard fix:
+    store your documents in a searchable memory, retrieve only the most relevant passages, then ask the LLM to answer
+    <em>using those passages</em>.
+    In robotics terms, RAG is like building a perception-to-action pipeline:
+    you don’t process the entire world at full resolution every frame—you gate computation with attention.
+  </p>
+
+  <div class="callout">
+    <p>
+      <strong>RAG in one line:</strong> <em>Query</em> $\rightarrow$ <em>Retrieve relevant chunks</em> $\rightarrow$
+      <em>Generate answer grounded in retrieved text</em>.
+    </p>
+  </div>
+
+  <h2>The Minimal RAG Pipeline</h2>
+
+  <p>
+    A practical RAG system has these stages:
+  </p>
+
+  <ul>
+    <li><strong>Data ingestion</strong>: load PDFs / docs / logs.</li>
+    <li><strong>Chunking</strong>: break large docs into passages that fit into retrieval + prompting.</li>
+    <li><strong>Embedding</strong>: convert each chunk into a vector.</li>
+    <li><strong>Vector database / index</strong>: store vectors for fast similarity search (e.g., IVF Flat in FAISS).</li>
+    <li><strong>Retrieval</strong>: embed the user query, retrieve top-$k$ similar chunks.</li>
+    <li><strong>Generation</strong>: feed retrieved chunks + query into the LLM and produce an answer.</li>
+  </ul>
+
+  <p>
+    The two most important knobs (and easiest to mess up) are:
+    <strong>(1) chunking</strong> and <strong>(2) retrieval/indexing</strong>.
+    If chunking is bad, retrieval is bad.
+    If retrieval is bad, generation hallucinates.
+  </p>
+
+  <h2>Why Chunking Matters (More Than People Think)</h2>
+
+  <p>
+    Chunking is your “state representation” for retrieval. The LLM can only answer using what you put in front of it,
+    so if the relevant fact is split across chunks or buried in a huge chunk, the model won’t reliably use it.
+  </p>
+
+  <p>
+    Suppose your robot has a maintenance manual PDF and you ask:
+    <em>“What torque spec should I use for the wheel hub bolts?”</em>
+    If the torque table is separated from the wheel hub section by a page break and your chunking splits them,
+    retrieval might fetch the wrong chunk, and the LLM will guess.
+  </p>
+
+  <h2>Chunking Types</h2>
+
+  <p>
+    Five types of chunking styles. Here’s what they mean, when they work, and the failure modes.
+  </p>
+
+  <h2>1) Fixed-Size Chunking (Fast, but Can Break Meaning)</h2>
+
+  <p>
+    Fixed-size chunking means: every chunk is ~N tokens/words (e.g., 200–400 words), often with overlap.
+    This is the “quick baseline.”
+  </p>
+
+  <ul>
+    <li><strong>Pros</strong>: simple, consistent, fast.</li>
+    <li><strong>Cons</strong>: semantic meaning may be lost; headings/tables can be split; retrieval gets noisy.</li>
+  </ul>
+
+  <pre><code># Fixed-size-ish chunking with overlap (simple baseline)
+def fixed_word_chunks(words, chunk_size=200, overlap=40):
+    chunks = []
+    i = 0
+    while i &lt; len(words):
+        chunk = words[i:i+chunk_size]
+        chunks.append(" ".join(chunk))
+        i += max(1, chunk_size - overlap)
+    return chunks
+
+text = open("manual.txt", "r", encoding="utf-8").read()
+words = text.split()
+chunks = fixed_word_chunks(words, chunk_size=220, overlap=50)
+print(len(chunks), "chunks")</code></pre>
+
+  <div class="callout">
+    <p>
+      <strong>analogy:</strong> fixed-size chunking is like uniform downsampling of a point cloud.
+      It’s fast, but it ignores structure (edges, planes, objects).
+    </p>
+  </div>
+
+  <h2>2) Semantic Chunking (Meaning-Preserving, but Costly)</h2>
+
+  <p>
+    Semantic chunking tries to keep “ideas” together.
+    A common trick: split into sentences, embed each sentence, then merge adjacent sentences while they’re “similar enough”
+    (above a threshold).
+  </p>
+
+  <ul>
+    <li><strong>Pros</strong>: improves retrieval quality; keeps coherent passages together.</li>
+    <li><strong>Cons</strong>: more compute; chunk sizes become inconsistent; threshold tuning matters.</li>
+  </ul>
+
+  <pre><code># Semantic-ish chunking sketch: merge adjacent sentences if embeddings are similar
+# (Uses sentence-transformers; install: pip install sentence-transformers)
+
+import numpy as np
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+def semantic_chunks(sentences, model_name="all-MiniLM-L6-v2", sim_threshold=0.75, max_sents=10):
+    model = SentenceTransformer(model_name)
+    embs = model.encode(sentences, normalize_embeddings=True)
+
+    chunks = []
+    cur = [sentences[0]]
+    cur_emb = embs[0]
+
+    for i in range(1, len(sentences)):
+        sim = float(np.dot(cur_emb, embs[i]))  # cosine since normalized
+        if sim &gt;= sim_threshold and len(cur) &lt; max_sents:
+            cur.append(sentences[i])
+            # update chunk embedding (simple average)
+            cur_emb = (cur_emb * (len(cur)-1) + embs[i]) / len(cur)
+            cur_emb = cur_emb / np.linalg.norm(cur_emb)
+        else:
+            chunks.append(" ".join(cur))
+            cur = [sentences[i]]
+            cur_emb = embs[i]
+
+    chunks.append(" ".join(cur))
+    return chunks</code></pre>
+
+  <p>
+    This is the type your notes describe: “Semantic then … if they are similar add them in … threshold.”
+  </p>
+
+  <h2>3) Recursive Chunking (Good Default in Practice)</h2>
+
+  <p>
+    Recursive chunking tries coarse splits first (paragraphs/sections), then recursively splits the pieces that are too big.
+    It often gives a nice balance: more structure-aware than fixed-size, cheaper than pure semantic merging.
+  </p>
+
+  <ul>
+    <li><strong>Pros</strong>: good default; works on messy PDFs; controllable chunk size.</li>
+    <li><strong>Cons</strong>: still can split tables/figures unless you add special handling.</li>
+  </ul>
+
+  <pre><code># Simple recursive splitter: try double-newline, then newline, then sentence-ish, then hard cut
+import re
+
+def recursive_split(text, max_chars=1200):
+    seps = ["\n\n", "\n", ". "]
+    pieces = [text]
+
+    for sep in seps:
+        new_pieces = []
+        for p in pieces:
+            if len(p) &lt;= max_chars:
+                new_pieces.append(p)
+            else:
+                new_pieces.extend([x.strip() for x in p.split(sep) if x.strip()])
+        pieces = new_pieces
+
+    # hard cut for leftovers
+    final = []
+    for p in pieces:
+        if len(p) &lt;= max_chars:
+            final.append(p)
+        else:
+            for i in range(0, len(p), max_chars):
+                final.append(p[i:i+max_chars])
+    return final</code></pre>
+
+  <h2>4) Structural Chunking (Exploit Document Structure)</h2>
+
+  <p>
+    Structural chunking uses headings like “Introduction”, “Method”, “Results”, etc.
+    This is excellent for well-formatted documents, because you get human-readable chunks like:
+    “Intro chunk”, “Method chunk 2”, and so on (exactly what your notes mention).
+  </p>
+
+  <ul>
+    <li><strong>Pros</strong>: consistent and human-interpretable; great for manuals/specs; fast if structure is clean.</li>
+    <li><strong>Cons</strong>: if headings are missing/incorrect (common in PDFs), chunks may be too coarse.</li>
+  </ul>
+
+  <pre><code># Structural chunking sketch: split on Markdown-ish headings
+import re
+
+def heading_chunks(text):
+    # Convert some PDFs to text then detect headings by ALL CAPS or numbered sections
+    pattern = r"\n(?=(?:\d+\.\d+|\d+\.|[A-Z][A-Z\s]{6,})\n)"
+    parts = [p.strip() for p in re.split(pattern, text) if p.strip()]
+    return parts</code></pre>
+
+  <h2>5) LLM-Based Chunking (High Semantic Accuracy, But Stochastic)</h2>
+
+  <p>
+    you can ask an LLM to segment a document into coherent chunks, but you pay extra tokens and you may get slightly different
+    chunk boundaries each run.
+  </p>
+
+  <ul>
+    <li><strong>Pros</strong>: excellent coherence; handles rapid topic changes.</li>
+    <li><strong>Cons</strong>: slower, costs tokens, and non-deterministic unless you control sampling tightly.</li>
+  </ul>
+
+  <pre><code># Prompt idea (pseudo): ask an LLM to produce JSON chunks with titles and text.
+# Use temperature=0 for more deterministic behavior.
+
+SYSTEM: "You are a document segmenter. Return JSON only."
+USER:
+"Split the following text into coherent chunks suitable for retrieval.
+Each chunk: {title, content}. Keep content &lt; 250 words. Preserve tables as one chunk when possible.
+TEXT:
+... (paste text) ..."</code></pre>
+
+  <h2>Embedding: Turning Chunks into Vectors</h2>
+
+  <p>
+    After chunking, we embed each chunk into a vector $\mathbf{e} \in \mathbb{R}^d$.
+    Typical retrieval compares a query embedding $\mathbf{q}$ to chunk embeddings $\mathbf{e}_i$ via dot product
+    (often equivalent to cosine similarity if vectors are normalized):
+  </p>
+
+  $$
+    s_i = \mathbf{q}^\top \mathbf{e}_i
+    \quad\text{(dot product)}
+  $$
+
+  <p>
+    The system returns the top-$k$ chunks with largest scores $s_i$.
+    Your notes literally say: “embedding query dotproduct … top get chunks.”
+  </p>
+
+  <pre><code># Embed chunks and a query with sentence-transformers
+# pip install sentence-transformers
+
+from sentence_transformers import SentenceTransformer
+import numpy as np
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+chunk_embeddings = model.encode(chunks, normalize_embeddings=True)
+query = "What is the torque spec for the wheel hub bolts?"
+q = model.encode([query], normalize_embeddings=True)[0]
+
+scores = chunk_embeddings @ q  # dot product
+topk = scores.argsort()[-5:][::-1]
+for idx in topk:
+    print(scores[idx], chunks[idx][:200], "...\n")</code></pre>
+
+  <h2>Vector Databases and Indexing </h2>
+
+  <p>
+    If you have a small dataset, you can brute-force compute $s_i$ for all chunks.
+    But with large PDFs, many documents, or long-running robots that accumulate logs, brute force gets slow.
+    So we use a <strong>vector index</strong>.
+  </p>
+
+  <p>
+    <strong>IVF Flat</strong> (Inverted File index + flat storage).
+    Intuition: learn <em>nlist</em> coarse centroids (typically via k-means), which partition embedding space
+    into Voronoi cells (one cell per centroid). Each centroid owns an <strong>inverted list</strong> of vectors
+    assigned to it.
+  </p>
+
+  <p>
+    At query time, we first find the nearest centroids to the query (using the coarse quantizer),
+    then compute exact similarities only within those selected lists. This reduces the number of candidate vectors
+    we score compared to brute force.
+  </p>
+
+  <ul>
+    <li><strong>Flat</strong>: exact search over all vectors (slow at scale).</li>
+    <li><strong>IVF Flat</strong>: approximate search by scanning only a few inverted lists; exact scoring inside scanned lists.</li>
+    <li><strong>Graph indexing</strong>: e.g., HNSW builds a navigable graph for fast approximate search.</li>
+  </ul>
+
+  <pre><code># FAISS IVF Flat example (fast ANN search)
+# pip install faiss-cpu
+
+import faiss
+import numpy as np
+
+# Suppose we have embeddings as float32 matrix: (N, d)
+X = np.asarray(chunk_embeddings, dtype=np.float32)
+N, d = X.shape
+
+nlist = 256          # number of coarse clusters
+quantizer = faiss.IndexFlatIP(d)   # inner product (dot product)
+index = faiss.IndexIVFFlat(quantizer, d, nlist, faiss.METRIC_INNER_PRODUCT)
+
+# Train on data (required for IVF)
+index.train(X)
+index.add(X)
+
+# Query
+k = 5
+q = np.asarray([q], dtype=np.float32)
+index.nprobe = 8     # how many clusters to probe (speed/recall tradeoff)
+scores, ids = index.search(q, k)
+
+for score, idx in zip(scores[0], ids[0]):
+    print(score, chunks[idx][:200], "...\n")</code></pre>
+
+  <div class="callout">
+    <p>
+      <strong>Robotics analogy:</strong> IVF is like doing a coarse global localization first
+      (which “region” of the map am I in?), then doing fine pose estimation inside that region.
+    </p>
+  </div>
+
+  <h2>Generation: Making the LLM Use Retrieved Evidence</h2>
+
+  <p>
+    The generation step is where many RAG systems fail: they retrieve good chunks, then the prompt doesn’t force grounding.
+    A robust prompt style is:
+  </p>
+
+  <ul>
+    <li>Give the LLM the retrieved passages as “Context”.</li>
+    <li>Explicitly instruct it to only use the context (or say “I don’t know”).</li>
+    <li>Optionally require citations (chunk IDs).</li>
+  </ul>
+
+  <pre><code># Prompt template idea (works with most LLM APIs)
+def make_prompt(question, retrieved_chunks):
+    context = "\n\n".join([f"[Chunk {i}] {c}" for i, c in enumerate(retrieved_chunks)])
+    return f"""
+You are a robotics assistant. Answer the question using ONLY the provided context.
+If the answer is not in the context, say you don't know.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer (include chunk numbers as citations like [Chunk 2]):
+""".strip()</code></pre>
+
+  <h2>Putting It Together: A Tiny RAG Loop</h2>
+
+  <pre><code># End-to-end skeleton (retrieval + prompt). The LLM call is pseudocode.
+
+def rag_answer(question, index, chunks, embed_model, top_k=5):
+    q = embed_model.encode([question], normalize_embeddings=True).astype("float32")
+    scores, ids = index.search(q, top_k)
+
+    retrieved = [chunks[i] for i in ids[0] if i != -1]
+    prompt = make_prompt(question, retrieved)
+
+    # llm_response = llm.generate(prompt)   # replace with your LLM call
+    # return llm_response
+    return prompt, retrieved, scores[0], ids[0]
+
+# Example usage:
+# prompt, retrieved, scores, ids = rag_answer("What is the torque spec ...", index, chunks, model)</code></pre>
+
+  <h2>Robotics Example: “VR Glasses Sees a Building” + RAG</h2>
+
+  <p>
+    Here’s a robotics-flavored system design that matches how students actually build these:
+  </p>
+
+  <ul>
+    <li><strong>Perception / localization</strong>: use VLM + GPS/VPS (visual positioning) to identify the building or candidate place IDs.</li>
+    <li><strong>Retrieval</strong>: use the recognized building ID/name as the query into a knowledge base (campus facts, hours, safety rules, history).</li>
+    <li><strong>Generation</strong>: produce a short spoken answer grounded in retrieved sources.</li>
+  </ul>
+
+  <p>
+    The key point: <strong>don’t ask the LLM to “know” the world</strong>.
+    Let perception determine <em>what</em> we’re looking at; let RAG supply <em>facts</em>;
+    let the LLM do <em>language + summarization</em>.
+  </p>
+
+  <h2>Common Failure Modes (And How Robotics Students Should Debug Them)</h2>
+
+  <ul>
+    <li><strong>Context window overflow</strong>: too many retrieved chunks or chunks too large. Fix with smaller chunks, lower $k$, or summarization.</li>
+    <li><strong>Bad chunk boundaries</strong>: key facts split apart. Fix with overlap, structural chunking, or semantic chunking.</li>
+    <li><strong>“Looks relevant” but wrong retrieval</strong>: embedding model mismatch. Fix by changing embedding model, adding reranking, or adding metadata filters.</li>
+    <li><strong>Hallucination</strong>: prompt doesn’t enforce grounding. Fix with stricter instructions + “say I don’t know”.</li>
+    <li><strong>Too slow</strong>: brute force search on large corpora. Fix with IVF/HNSW and tuned parameters (e.g., <code>nprobe</code>).</li>
+  </ul>
+
+  <h2>Practical Defaults (If You Just Want It to Work)</h2>
+
+  <ul>
+    <li><strong>Chunking</strong>: recursive chunking + ~10–20% overlap. Add structural rules for headings/tables if possible.</li>
+    <li><strong>Embeddings</strong>: normalize vectors; use dot product (cosine). Keep an eye on domain mismatch (manuals vs Wikipedia vs research papers).</li>
+    <li><strong>Index</strong>: FAISS IVF Flat for scale, or HNSW if you want graph-based ANN.</li>
+    <li><strong>Retrieval</strong>: start with top-$k=5$; consider reranking if precision matters.</li>
+    <li><strong>Prompt</strong>: force “use only context” + cite chunk IDs.</li>
+  </ul>
+
+</body>
+</html>
